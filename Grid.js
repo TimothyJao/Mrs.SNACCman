@@ -1,7 +1,7 @@
 import GridCell from "./GridCell"
 
-class Grid{
-    constructor(){
+class Grid {
+    constructor() {
         this.grid = [
             [P, P, P, P, P, P, P, P, P, P, P, P, X, X, P, P, P, P, P, P, P, P, P, P, P, P,],
             [P, X, X, X, X, P, X, X, X, X, X, P, X, X, P, X, X, X, X, X, P, X, X, X, X, P,],
@@ -35,19 +35,19 @@ class Grid{
         ];
 
         this.moveGrid = [];
-        for(let i = 0; i < 26; i++){
+        for (let i = 0; i < 26; i++) {
             this.grid[i] = [];
-            for(let j = 0; j < 29; j++){
-                this.grid[i].push(GridCell.new(this.grid, [i,j]))
+            for (let j = 0; j < 29; j++) {
+                this.grid[i].push(GridCell.new(this.grid, [i, j]))
             }
         }
     }
 
-    getGrid(){
+    getGrid() {
         return this.grid;
     }
 
-    getMoveGrid(){
+    getMoveGrid() {
         return this.moveGrid;
     }
 }

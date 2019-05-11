@@ -5,6 +5,7 @@ class Ghost extends Entity{
         super([x, y, type, velocity])
     }
 
+    nextMove(){}
     //ALGORITHM HERE
 
 }
