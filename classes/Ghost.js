@@ -3,19 +3,18 @@ import Entity from "./Entity"
 class Ghost extends Entity{
     constructor(x, y, type="ghost", velocity){
         super([x, y, type, velocity])
-        this.killable = false;
     }
 
-    nextMove() {//ALGORITHM HERE}
+    nextMove() { } //ALGORITHM HERE
     }
 
-    getKillable(){
-        return this.killable;
+    setPos(pos){
+        this.pos = pos
     }
 
-    setKillabe(bool){
-        this.killable = bool;
+    setVelocity(velocity){
+        this.velocity = velocity;
     }
-
-
 }
+
+export default Ghost

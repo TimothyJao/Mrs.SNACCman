@@ -10,7 +10,7 @@ class GridCell {
     //and if they next move would cause the entity to run into a wall.
 
     canMoveUp() {
-        if ((this.x === 0 && this.grid[this.grid.length - 1][this.y] != "E") || this.grid[this.x - 1][this.y] === "X") {
+        if (((this.x === 0) || this.grid[this.x - 1][this.y] === "X")) {
             return false;
         } else {
             return true;
@@ -18,7 +18,7 @@ class GridCell {
     }
 
     canMoveLeft() {
-        if ((this.y === 0 && this.grid[this.x][this.grid[0].length - 1] != "E") || this.grid[this.x][this.y - 1] === "X") {
+        if (((this.y === 0) || this.grid[this.x][this.y - 1] === "X") && (this.x != 13 && this.y != 0) {
             return false;
         } else {
             return true;
@@ -26,7 +26,7 @@ class GridCell {
     }
 
     canMoveDown() {
-        if ((this.x === this.grid.length - 1 && this.grid[0][this.y] != "E") || this.grid[this.x + 1][this.y] === "X" || this.grid[this.x][this.y] === "G" || this.grid[this.x + 1][this.y] === "G") {
+        if ((this.x === this.grid.length - 1) || this.grid[this.x + 1][this.y] === "X" || this.grid[this.x][this.y] === "G" || this.grid[this.x + 1][this.y] === "G") {
             return false;
         } else {
             return true;
@@ -34,7 +34,7 @@ class GridCell {
     }
 
     canMoveRight() {
-        if ((this.x === this.grid[0].length - 1 && this.grid[this.x][0] || this.grid[this.x][this.y + 1] === "X"){
+        if ((this.x === this.grid[0].length - 1 || this.grid[this.x][this.y + 1] === "X") && (this.x != 13 && this.y != this.grid.length-1)){
             return false;
         } else {
             return true;
