@@ -13,9 +13,10 @@ class Game extends React.Component{
   constructor(props){
     super(props);
     this.frame = 0;
-    this.isBig = 0;
+    this.isSuper = 0;
     this.lives = 3;
     this.pelletCount = 999;
+    this.start_position = [12.5, 22];
 
     this.snaccman = props.snaccman;
     // this.ghosts = props.ghosts;
@@ -52,6 +53,12 @@ class Game extends React.Component{
         clearInterval(this.intervalId);
         document.removeEventListener("keydown", this.handleInput);
         break;
+      case 80: //P enables super snacc thiccness mode for testing
+        this.isSuper = 5*FPS;
+        break;
+      case 75: //K kills snaccman for testing
+        this.killSnaccman();
+        break;
       case 38: //arrow up
       case 87: //W
         this.snaccman.bufferedVelocity = [0,-1];
@@ -70,11 +77,25 @@ class Game extends React.Component{
         break;
     }
   }
+  killSnaccman(){
+    this.snaccman.pos = this.start_position;
+    this.snaccman.velocity = [1,0];
+    this.snaccman.bufferedVelocity = [1,0];
+    this.isSuper = 0;
+    if(this.lives > 0) this.lives--;
+  }
   nextFrame() {
+    if(this.lives <= 0){
+      this.gameOver();
+      return;
+    }
     this.frame += 1;
-    if(this.isBig) this.isBig--;
+    if(this.isSuper) this.isSuper--;
     this.updatePositions();
     this.checkCollisions();
+    this.draw();
+  }
+  gameOver(){
     this.draw();
   }
 
@@ -136,7 +157,7 @@ class Game extends React.Component{
     // this.pellets.forEach((pellet, i)=>{
     //   if(this.snaccman.collidesWith(pellet, this.grid)){
     //     console.log("Yum");
-    //     if(pellet.type === BIG_PELLET) this.isBig = 60;
+    //     if(pellet.type === BIG_PELLET) this.isSuper = FPS*5;
     //     delete this.cachedPellets;
     //     delete this.pellets[i];
     //   }
@@ -185,7 +206,12 @@ class Game extends React.Component{
   }
   drawLives(){
     const bottom = this.game.GameHeight() - PADDING;
-    const text = `Lives: ${this.lives}`;
+    let text = (this.lives > 0) ? `Lives: ${this.lives}` : "GAME OVER!";
+    if(this.isSuper){
+      const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
+      text += ` SNACC TIME!!! ${SNACC_TIME}`;
+    }
+   
     this.ctx.strokeStyle = TEXT_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING, bottom + 25);
@@ -233,7 +259,7 @@ class Game extends React.Component{
   }
 
   drawSnaccman(){
-
+    if(this.lives <= 0) return;
     //get position
     const [x_start, y_start] = this.game.getStartPositionForCell(...this.snaccman.pos);
     let direction = "right"; //default
@@ -269,7 +295,7 @@ class Game extends React.Component{
         break;
     }
 
-    const img = IMAGES.snaccman[direction][imgNumber];
+    const img = this.isSuper ? IMAGES.snaccman["super"][direction][imgNumber] : IMAGES.snaccman[direction][imgNumber];
     this.drawSprite(img, x_start, y_start, this.snaccman);
   }
 

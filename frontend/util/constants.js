@@ -29,6 +29,12 @@ export const IMAGES = {
     left: [],
     right: [],
     up: [],
-    down: []
+    down: [],
+    super: {
+      left: [],
+      right: [],
+      up: [],
+      down: []
+    }
   },
 };
