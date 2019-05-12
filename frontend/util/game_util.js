@@ -3,7 +3,7 @@ export const BACKGROUND_COLOR = "rgb(0,0,0)"; //black
 export const WALL_COLOR = "rgb(0,0,255)"; //blue
 
 //for drawing the actual board
-export const PIXEL_SIZE = 28; //Size of each cell in the grid
+export const PIXEL_SIZE = 27; //Size of each cell in the grid
 export const PADDING = 20; //padding around the edge of the grid, possibly to render score onto or something
 
 //for sprite rendering calculations

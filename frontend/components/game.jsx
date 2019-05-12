@@ -33,6 +33,7 @@ class Game extends React.Component{
       pos: [1,14], //figure out the real starting coords
       velocity: [1,0]
     };
+    this.bufferedVelocity = this.snaccman.velocity;
 
     this.nextFrame = this.nextFrame.bind(this);
     this.handleInput = this.handleInput.bind(this);
@@ -57,7 +58,9 @@ class Game extends React.Component{
     switch(e.keyCode){
       case 81: //q quits the game for testing
         console.log("Snaccman: ");
-        console.log(this.snaccman.pos);
+        console.log(this.snaccman);
+        console.log("BufferedVelocity: ");
+        console.log(this.bufferedVelocity);
         console.log("Grid");
         console.log(this.grid);
         clearInterval(this.intervalId);
@@ -65,19 +68,19 @@ class Game extends React.Component{
         break;
       case 38: //arrow up
       case 87: //W
-        this.snaccman.velocity = [0,-1];
+        this.bufferedVelocity = [0,-1];
         break;
       case 37: //arrow left
       case 65: //A
-        this.snaccman.velocity = [-1,0];
+        this.bufferedVelocity = [-1,0];
         break;
       case 40: //arrow down
       case 83: //S
-        this.snaccman.velocity = [0,1];
+        this.bufferedVelocity = [0,1];
         break;
       case 39: //arrow right
       case 68: //D
-        this.snaccman.velocity = [1, 0];
+        this.bufferedVelocity = [1, 0];
         break;
     }
   }
@@ -89,7 +92,16 @@ class Game extends React.Component{
   }
 
   updatePositions(){
-    this.updateSnaccman();
+    this.previousVelocity = this.snaccman.velocity;
+    this.snaccman.velocity = this.bufferedVelocity;
+    const moved = this.updateSnaccman();
+    //let players buffer inputs, try to continue moving in current direction if it fails
+    if(!moved && this.snaccman.velocity != this.previousVelocity){
+      this.snaccman.velocity = this.previousVelocity;
+      this.updateSnaccman();
+    }else{
+      this.bufferedVelocity = this.snaccman.velocity;
+    }
   }
 
   
@@ -115,18 +127,19 @@ class Game extends React.Component{
   
     //prevent movement if there is a wall
     if(nextLeft < left){ //Attempting to move left
-      if (!this.getCell(left, top).canMoveLeft || !this.getCell(left, bottom).canMoveLeft) next_x = current_x;
+      if (!this.getCell(left, top).canMoveLeft || !this.getCell(left, bottom).canMoveLeft) return false;
     }
     if(nextTop < top){ //Attempting to move up
-      if (!this.getCell(left, top).canMoveUp || !this.getCell(right, top).canMoveUp) next_y = current_y;
+      if (!this.getCell(left, top).canMoveUp || !this.getCell(right, top).canMoveUp) return false;
     }
     if (nextRight > right){ //Attempting to move right
-      if (!this.getCell(right, top).canMoveRight || !this.getCell(right, bottom).canMoveRight) next_x = current_x;
+      if (!this.getCell(right, top).canMoveRight || !this.getCell(right, bottom).canMoveRight) return false;
     }
     if (nextBottom > bottom){ //Attempting to move down
-      if (!this.getCell(left, bottom).canMoveDown || !this.getCell(right, bottom).canMoveDown) next_y = current_y;
+      if (!this.getCell(left, bottom).canMoveDown || !this.getCell(right, bottom).canMoveDown) return false;
     }
     this.snaccman.pos = [this.wrapX(next_x), this.wrapY(next_y)];
+    return true;
   }
 
   wrapX(x){
