@@ -1,14 +1,16 @@
 //colors
 export const BACKGROUND_COLOR = "rgb(0,0,0)"; //black
 export const WALL_COLOR = "rgb(0,0,255)"; //blue
+export const FONT = "20px monospace";
+export const TEXT_COLOR = "rgb(255,255,255)"; //white
 
 //for drawing the actual board
 export const PIXEL_SIZE = 27; //Size of each cell in the grid
-export const PADDING = 20; //padding around the edge of the grid, possibly to render score onto or something
+export const PADDING = 35; //padding around the edge of the grid, possibly to render score onto or something
 
 //for sprite rendering calculations
 export const SPRITE_DURATION = 6; //how long to display each sprite before switching
-export const SPRITE_PIXEL_SIZE = 24; //Sprite size in pixels
+export const SPRITE_PIXEL_SIZE = PIXEL_SIZE - 3; //Sprite size in pixels
 export const IMG_SIZE = SPRITE_PIXEL_SIZE/PIXEL_SIZE; //Logical size of sprite img for calculating board position
 
 export const FPS = 30;

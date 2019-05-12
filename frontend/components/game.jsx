@@ -14,18 +14,8 @@ class Game extends React.Component{
     // this.ghosts = props.ghosts;
     // this.pellets = props.pellets;
     //cache the grid so we don't have to recompute function calls
-    this.grid = [];
-    props.grid.forEach((row, x)=>{
-      this.grid[x] = [];
-      row.forEach((cell, y)=>{
-        this.grid[x][y]={
-          canMoveUp: cell.canMoveUp(),
-          canMoveDown: cell.canMoveDown(),
-          canMoveLeft: cell.canMoveLeft(),
-          canMoveRight: cell.canMoveRight()
-        };
-      });
-    });
+    this.grid = props.grid;
+    
 
     //temporary variables for testing
     //this.grid = GameUtil.transposedTestGrid;
@@ -44,6 +34,7 @@ class Game extends React.Component{
     this.ctx = document.querySelector("#game-canvas").getContext("2d");
     this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
     this.ctx.strokeStyle = GameUtil.WALL_COLOR;
+    this.ctx.font = GameUtil.FONT;
     //load the image assets, start rendering once they are loaded
     GameUtil.loadImages(()=>{
       document.addEventListener("keydown", this.handleInput);
@@ -129,16 +120,16 @@ class Game extends React.Component{
   
     //prevent movement if there is a wall
     if(nextLeft < left){ //Attempting to move left
-      if (!this.getCell(left, top).canMoveLeft || !this.getCell(left, bottom).canMoveLeft) return false;
+      if (!this.getCell(left, top).canMoveLeft() || !this.getCell(left, bottom).canMoveLeft()) return false;
     }
     if(nextTop < top){ //Attempting to move up
-      if (!this.getCell(left, top).canMoveUp || !this.getCell(right, top).canMoveUp) return false;
+      if (!this.getCell(left, top).canMoveUp() || !this.getCell(right, top).canMoveUp()) return false;
     }
     if (nextRight > right){ //Attempting to move right
-      if (!this.getCell(right, top).canMoveRight || !this.getCell(right, bottom).canMoveRight) return false;
+      if (!this.getCell(right, top).canMoveRight() || !this.getCell(right, bottom).canMoveRight()) return false;
     }
     if (nextBottom > bottom){ //Attempting to move down
-      if (!this.getCell(left, bottom).canMoveDown || !this.getCell(right, bottom).canMoveDown) return false;
+      if (!this.getCell(left, bottom).canMoveDown() || !this.getCell(right, bottom).canMoveDown()) return false;
     }
     entity.pos = [this.wrapX(next_x), this.wrapY(next_y)];
     return true;
@@ -191,7 +182,16 @@ class Game extends React.Component{
 
     //clear the padding for wrapped images
     this.clearPadding();
-    
+    this.drawLives();
+  }
+  drawLives(){
+    const bottom = GameUtil.GameHeight(this.grid) - GameUtil.PADDING;
+    const text = `Lives: ${this.lives}`;
+    this.ctx.strokeStyle = GameUtil.TEXT_COLOR;
+    this.ctx.fillStyle = GameUtil.TEXT_COLOR;
+    this.ctx.fillText(text, GameUtil.PADDING, bottom + 25);
+    this.ctx.strokeStyle = GameUtil.WALL_COLOR;
+    this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
   }
 
   clearPadding(){
@@ -213,19 +213,19 @@ class Game extends React.Component{
     const [x_start, y_start] = GameUtil.getStartPositionForCell(x,y);
     const [x_end, y_end] = GameUtil.getEndPositionForCell(x,y);
     //draw the walls if they can't move in that direction
-    if(!this.grid[x][y].canMoveUp){
+    if(!this.grid[x][y].canMoveUp()){
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_end, y_start);
     }
-    if(!this.grid[x][y].canMoveRight){
+    if(!this.grid[x][y].canMoveRight()){
       this.ctx.moveTo(x_end, y_start);
       this.ctx.lineTo(x_end, y_end);
     }
-    if(!this.grid[x][y].canMoveDown){
+    if(!this.grid[x][y].canMoveDown()){
       this.ctx.moveTo(x_start, y_end);
       this.ctx.lineTo(x_end, y_end);
     }
-    if(!this.grid[x][y].canMoveLeft){
+    if(!this.grid[x][y].canMoveLeft()){
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_start, y_end);
     }
@@ -273,22 +273,21 @@ class Game extends React.Component{
     //offset to center the image
     const imgSize = GameUtil.IMG_SIZE;
     const pixelSize = GameUtil.PIXEL_SIZE;
-    const offsetX = GameUtil.SPRITE_OFFSET_X;
-    const offsetY  = GameUtil.SPRITE_OFFSET_Y;
+    const spriteSize = GameUtil.SPRITE_PIXEL_SIZE;
     
-    this.ctx.drawImage(img, x_start, y_start);
+    this.ctx.drawImage(img, x_start, y_start, spriteSize, spriteSize);
 
-    if(Math.ceil(this.snaccman.pos[0] + imgSize + offsetX) >= this.grid.length){
+    if(Math.ceil(this.snaccman.pos[0] + imgSize) >= this.grid.length){
  
-      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start);
+      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start, spriteSize, spriteSize);
     }
-    if(Math.ceil(this.snaccman.pos[1] + imgSize + offsetY) >= this.grid[0].length){
+    if(Math.ceil(this.snaccman.pos[1] + imgSize) >= this.grid[0].length){
       
-      this.ctx.drawImage(img, x_start, y_start - (this.grid[0].length * pixelSize) - imgSize);
+      this.ctx.drawImage(img, x_start, y_start - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
     }
-    if ((Math.ceil(this.snaccman.pos[0] + imgSize + offsetX) >= this.grid.length) && (Math.ceil(this.snaccman.pos[1] + imgSize + offsetY) >= this.grid[0].length)) {
+    if ((Math.ceil(this.snaccman.pos[0] + imgSize) >= this.grid.length) && (Math.ceil(this.snaccman.pos[1] + imgSize) >= this.grid[0].length)) {
 
-      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start - (this.grid[0].length * pixelSize) - imgSize);
+      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
     }
   }
 
