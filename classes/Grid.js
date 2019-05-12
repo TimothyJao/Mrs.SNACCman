@@ -44,7 +44,7 @@ class Grid {
         for (let i = 0; i < 26; i++) {
             this.grid[i] = [];
             for (let j = 0; j < 29; j++) {
-                this.grid[i].push(GridCell.new(this.grid, [i, j]))
+                this.grid[i].push(new GridCell(this.grid, [i, j]))
             }
         }
     }
