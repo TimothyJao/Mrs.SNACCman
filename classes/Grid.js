@@ -1,5 +1,11 @@
 import GridCell from "./GridCell"
 
+const P = "P";
+const X = "X";
+const E = "E";
+const B = "B";
+const G = "G";
+
 class Grid {
     constructor() {
         this.grid = [
