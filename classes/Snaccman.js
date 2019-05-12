@@ -1,7 +1,7 @@
 import Entity from "./Entity"
 
 class Snaccman extends Entity{
-    constructor(x, y, type="Snaccman", velocity){
+    constructor(x, y, type="snaccman", velocity){
         super(x, y, type, velocity);
     }
 
