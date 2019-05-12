@@ -56,8 +56,12 @@ class Game extends React.Component{
   handleInput(e){
     switch(e.keyCode){
       case 81: //q quits the game for testing
+        console.log("Snaccman: ");
         console.log(this.snaccman.pos);
+        console.log("Grid");
+        console.log(this.grid);
         clearInterval(this.intervalId);
+        document.removeEventListener("keydown", this.handleInput);
         break;
       case 38: //arrow up
       case 87: //W
