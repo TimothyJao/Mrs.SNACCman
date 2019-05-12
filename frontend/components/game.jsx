@@ -1,4 +1,5 @@
 import React from "react";
+import io from "socket.io-client";
 
 import * as GameUtil from "../util/game_util";
 
@@ -26,6 +27,9 @@ class Game extends React.Component{
         };
       });
     });
+
+    /* socket  */
+    this.socket = io('localhost:5000');
 
     //temporary variables for testing
     //this.grid = GameUtil.transposedTestGrid;
