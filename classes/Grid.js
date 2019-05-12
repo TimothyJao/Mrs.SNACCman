@@ -42,14 +42,14 @@ class Grid {
             [P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P,],
         ]);
 
-        //replaces all "P" and "B" with Entity objects
+        /* replaces all "P" and "B" with Entity objects */ 
         for (let i = 0; i < this.grid.length; i++) {
             for (let j = 0; j < this.grid.length; j++){
-                if(grid[i][j] === "P"){
-                    grid[i][j] = new Entity(i, j, "pellet")
+                if (grid[i][j] === "P"){
+                    grid[i][j] = new Entity(i, j, "pellet");
                 }
                 else if (grid[i][j] === "B"){
-                    grid[i][j] = new Entity(i, j, "big pellet")
+                    grid[i][j] = new Entity(i, j, "big pellet");
                 }
             }
         }
