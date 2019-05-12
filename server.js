@@ -8,7 +8,7 @@ const PORT = 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
-// const index = require("./index.html");
+
 // const express = require("express");
 // const app = express();
 // const db = require("./config/keys").mongoURI;
@@ -23,9 +23,12 @@ const io = require('socket.io')(server);
 // });
 
 
+// app.get('/', function (req, res) {
+//     res.sendFile(__dirname + '/index.html');
+// });
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+app.get('*', function (req, res) {
+    res.sendFile(path.join(__dirname, './index.html'));
 });
 
 
