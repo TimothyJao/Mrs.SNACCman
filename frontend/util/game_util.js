@@ -13,19 +13,27 @@ export class GameUtil{
     //snaccman images will be /image/up-1.png, ..., /images/right-3.png
     const directions = ["up", "down", "left", "right"];
     const sprites = 3;
+    let total = 0;
 
     directions.forEach(direction => {
       for (let i = 1; i <= sprites; i++) {
+        total+=2; //normal and super sprites!
+
         let img = new Image();
         img.onload = loaded;
         img.src = `images/${direction}-${i}.png`;
         IMAGES.snaccman[direction].push(img);
+  
+        img = new Image();
+        img.onload = loaded;
+        img.src = `images/super-${direction}-${i}.png`;
+        IMAGES.snaccman["super"][direction].push(img);
       }
     });
     //gets called when an image gets loaded
     function loaded() {
       count++;
-      if (count >= directions.length * sprites) {
+      if (count >= total) {
         //execute callback when all images have successfully loaded
         callback();
       }
