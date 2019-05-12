@@ -1,4 +1,5 @@
-import GridCell from "./GridCell"
+import GridCell from "./GridCell";
+import {transposeGrid} from "../frontend/util/game_util";
 
 const P = "P";
 const X = "X";
@@ -8,7 +9,7 @@ const G = "G";
 
 class Grid {
     constructor() {
-        this.grid = [
+        this.grid = transposeGrid([
             [P, P, P, P, P, P, P, P, P, P, P, P, X, X, P, P, P, P, P, P, P, P, P, P, P, P,],
             [P, X, X, X, X, P, X, X, X, X, X, P, X, X, P, X, X, X, X, X, P, X, X, X, X, P,],
             [B, X, X, X, X, P, X, X, X, X, X, P, X, X, P, X, X, X, X, X, P, X, X, X, X, B,],
@@ -38,13 +39,13 @@ class Grid {
             [P, X, X, X, X, X, X, X, X, X, X, P, X, X, P, X, X, X, X, X, X, X, X, X, X, P,],
             [P, X, X, X, X, X, X, X, X, X, X, P, X, X, P, X, X, X, X, X, X, X, X, X, X, P,],
             [P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P,],
-        ];
+        ]);
 
         this.moveGrid = [];
-        for (let i = 0; i < 26; i++) {
-            this.moveGrid[i] = [];
-            for (let j = 0; j < 29; j++) {
-                this.moveGrid[i].push(new GridCell(this.grid, [i, j]))
+        for (let x = 0; x < this.grid.length; x++) {
+            this.moveGrid[x] = [];
+            for (let y = 0; y < this.grid[x].length; y++) {
+                this.moveGrid[x][y] = new GridCell(this.grid, [x, y]);
             }
         }
     }
@@ -58,4 +59,4 @@ class Grid {
     }
 }
 
-export default Grid
+export default Grid;
