@@ -30,10 +30,11 @@ class Game extends React.Component{
     //temporary variables for testing
     //this.grid = GameUtil.transposedTestGrid;
     this.snaccman = {
-      pos: [12.5,22], //figure out the real starting coords
+      pos: [12.5,22], 
       velocity: [1,0]
     };
-    this.bufferedVelocity = this.snaccman.velocity;
+
+    this.snaccman.bufferedVelocity = this.snaccman.velocity;
 
     this.nextFrame = this.nextFrame.bind(this);
     this.handleInput = this.handleInput.bind(this);
@@ -59,8 +60,6 @@ class Game extends React.Component{
       case 81: //q quits the game for testing
         console.log("Snaccman: ");
         console.log(this.snaccman);
-        console.log("BufferedVelocity: ");
-        console.log(this.bufferedVelocity);
         console.log("Grid");
         console.log(this.grid);
         clearInterval(this.intervalId);
@@ -68,19 +67,19 @@ class Game extends React.Component{
         break;
       case 38: //arrow up
       case 87: //W
-        this.bufferedVelocity = [0,-1];
+        this.snaccman.bufferedVelocity = [0,-1];
         break;
       case 37: //arrow left
       case 65: //A
-        this.bufferedVelocity = [-1,0];
+        this.snaccman.bufferedVelocity = [-1,0];
         break;
       case 40: //arrow down
       case 83: //S
-        this.bufferedVelocity = [0,1];
+        this.snaccman.bufferedVelocity = [0,1];
         break;
       case 39: //arrow right
       case 68: //D
-        this.bufferedVelocity = [1, 0];
+        this.snaccman.bufferedVelocity = [1, 0];
         break;
     }
   }
@@ -92,38 +91,41 @@ class Game extends React.Component{
   }
 
   updatePositions(){
-    this.previousVelocity = this.snaccman.velocity;
-    this.snaccman.velocity = this.bufferedVelocity;
-    const moved = this.updateSnaccman();
-    //let players buffer inputs, try to continue moving in current direction if it fails
-    if(!moved && this.snaccman.velocity != this.previousVelocity){
-      this.snaccman.velocity = this.previousVelocity;
-      this.updateSnaccman();
+    this.updateEntity(this.snaccman);
+    
+  }
+  updateEntity(entity){
+    //try the buffered velocity, and if it fails, keep moving in the previous direction
+    entity.previousVelocity = entity.velocity;
+    entity.velocity = entity.bufferedVelocity;
+    const moved = this.updatePosition(entity);
+    if(!moved && entity.velocity != entity.previousVelocity){
+      entity.velocity = entity.previousVelocity;
+      this.updatePosition(entity);
     }else{
-      this.bufferedVelocity = this.snaccman.velocity;
+      entity.bufferedVelocity = entity.velocity;
     }
   }
 
   
-  updateSnaccman(){
-    const [current_x, current_y] = this.snaccman.pos;
-    let next_x = current_x + this.snaccman.velocity[0]*GameUtil.SNACCMAN_MOVE_SPEED;
-    let next_y = current_y + this.snaccman.velocity[1]*GameUtil.SNACCMAN_MOVE_SPEED;
+  updatePosition(entity){
+    if(entity.velocity.join(",")==="0,0") return true; //pellets
+    const [current_x, current_y] = entity.pos;
+    let next_x = current_x + entity.velocity[0]*GameUtil.SNACCMAN_MOVE_SPEED;
+    let next_y = current_y + entity.velocity[1]*GameUtil.SNACCMAN_MOVE_SPEED;
     
     const imgSize = GameUtil.IMG_SIZE;
-    const offsetX = GameUtil.OFFSET_X_SIZE;
-    const offsetY = GameUtil.OFFSET_Y_SIZE;
     const wallSize = 1/GameUtil.PIXEL_SIZE;
 
-    const left = Math.floor(current_x + offsetX + wallSize);
-    const top = Math.floor(current_y + offsetY + wallSize);
-    const right = Math.floor(current_x + imgSize - offsetX + 2*wallSize);
-    const bottom = Math.floor(current_y + imgSize - offsetY + 2*wallSize);
+    const left = Math.floor(current_x + wallSize);
+    const top = Math.floor(current_y + wallSize);
+    const right = Math.floor(current_x + imgSize + 2*wallSize);
+    const bottom = Math.floor(current_y + imgSize + 2*wallSize);
 
-    const nextLeft = Math.floor(next_x + offsetX + wallSize);
-    const nextTop = Math.floor(next_y + offsetY + wallSize);
-    const nextRight = Math.floor(next_x + imgSize - offsetX + 2*wallSize);
-    const nextBottom = Math.floor(next_y + imgSize - offsetY + 2*wallSize);
+    const nextLeft = Math.floor(next_x + wallSize);
+    const nextTop = Math.floor(next_y + wallSize);
+    const nextRight = Math.floor(next_x + imgSize + 2*wallSize);
+    const nextBottom = Math.floor(next_y + imgSize + 2*wallSize);
   
     //prevent movement if there is a wall
     if(nextLeft < left){ //Attempting to move left
@@ -138,7 +140,7 @@ class Game extends React.Component{
     if (nextBottom > bottom){ //Attempting to move down
       if (!this.getCell(left, bottom).canMoveDown || !this.getCell(right, bottom).canMoveDown) return false;
     }
-    this.snaccman.pos = [this.wrapX(next_x), this.wrapY(next_y)];
+    entity.pos = [this.wrapX(next_x), this.wrapY(next_y)];
     return true;
   }
 
