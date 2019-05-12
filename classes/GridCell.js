@@ -5,10 +5,10 @@ class GridCell {
             this.y = position[1];
     }
     wrapX(x){
-        return ((x%this.grid.length)%this.grid.length);
+        return ((x % this.grid.length) %this.grid.length);
     }
     wrapY(y){
-        return ((y%this.grid[0].length)+this.grid[0].length)%this.grid[0].length;
+        return ((y % this.grid[0].length) + this.grid[0].length)%this.grid[0].length;
     }
     //These set of functions determine if an entity can move in the given direction.
     //Tests if the movement cannot wrap, the entity is on the border  

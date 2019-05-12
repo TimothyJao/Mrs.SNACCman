@@ -1,5 +1,6 @@
 import GridCell from "./GridCell";
 import {transposeGrid} from "../frontend/util/game_util";
+import Entity from "./Entity";
 
 const P = "P";
 const X = "X";
@@ -40,6 +41,18 @@ class Grid {
             [P, X, X, X, X, X, X, X, X, X, X, P, X, X, P, X, X, X, X, X, X, X, X, X, X, P,],
             [P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P,],
         ]);
+
+        /* replaces all "P" and "B" with Entity objects */ 
+        for (let i = 0; i < this.grid.length; i++) {
+            for (let j = 0; j < this.grid.length; j++){
+                if (grid[i][j] === "P"){
+                    grid[i][j] = new Entity(i, j, "pellet");
+                }
+                else if (grid[i][j] === "B"){
+                    grid[i][j] = new Entity(i, j, "big pellet");
+                }
+            }
+        }
 
         this.moveGrid = [];
         for (let x = 0; x < this.grid.length; x++) {

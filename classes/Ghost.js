@@ -29,7 +29,7 @@ class Ghost extends Entity{
         let visited = grid;
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] === 'P' || grid[i][j] === 'B' || grid[i][j] === 'G') {
+                if (grid[i][j].type === 'pellet' || grid[i][j].type === 'big pellet') {
                     visited[i][j] = false;
                 } else {
                     visited[i][j] = true;
@@ -41,17 +41,15 @@ class Ghost extends Entity{
 
     /* shortestPathToSnacMan - return shortest path coordinates from ghost to snaccman */
     shortestPathToSnacMan(grid, snaccman) {
-        // in coorditnate form 
         let ghostPos = [this.x, this.y]
         let snacManPos = [snaccman.x, snaccman.y]
         /* set up valid positions that the ghost can travel to */
         visited_grid = setUpVisitedNodes(grid);
         /* pred - holds the previous objects the ghost has traveled to */
-        //let pred = [[].[]];
         let pred = []
         let queue = [];
 
-         /* bfs traversal */
+         /* modified bfs traversal */
         queue.push(ghostPos)
         while (!queue) {
             let nextGhostPos = queue.shift();
@@ -66,6 +64,7 @@ class Ghost extends Entity{
                     // pred[grid[x][i].x][grid[x][i].y].push(grid[x][y]);
                     let nextToQueue = [grid[x][i].x, grid[x][i].y]
                     queue.push(nextToQueue);
+                    /* push the predecesor node/object */
                     pred.push(grid[x][i])
                     /* if the coordinates match */
                     if ([grid[x][i].x, grid[x][i].y] === snacManPos) {
