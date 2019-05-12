@@ -1,7 +1,11 @@
 import Entity from "./Entity"
 
 class Snaccman extends Entity{
+<<<<<<< HEAD
     constructor(x, y, type="Snaccman", velocity){
+=======
+    constructor(x, y, type="snaccman", velocity){
+>>>>>>> acb7e950c5d1617d6448f7e337be18836ab2da97
         super(x, y, type, velocity);
     }
 
