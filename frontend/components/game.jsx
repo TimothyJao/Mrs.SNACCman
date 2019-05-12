@@ -1,6 +1,7 @@
 import React from "react";
 
 import * as GameUtil from "../util/game_util";
+import {BIG_PELLET} from "../../classes/Entity";
 
 class Game extends React.Component{
   constructor(props){
@@ -8,21 +9,11 @@ class Game extends React.Component{
     this.frame = 0;
     this.isBig = 0;
     this.lives = 3;
-    this.gameOver = false;
 
-    // this.snaccman = props.snaccman;
+    this.snaccman = props.snaccman;
     // this.ghosts = props.ghosts;
-    // this.pellets = props.pellets;
-    //cache the grid so we don't have to recompute function calls
+    this.pellets = props.pellets;
     this.grid = props.grid;
-    
-
-    //temporary variables for testing
-    //this.grid = GameUtil.transposedTestGrid;
-    this.snaccman = {
-      pos: [12.5,22], 
-      velocity: [1,0]
-    };
 
     this.snaccman.bufferedVelocity = this.snaccman.velocity;
 
@@ -51,8 +42,6 @@ class Game extends React.Component{
       case 81: //q quits the game for testing
         console.log("Snaccman: ");
         console.log(this.snaccman);
-        console.log("Grid");
-        console.log(this.grid);
         clearInterval(this.intervalId);
         document.removeEventListener("keydown", this.handleInput);
         break;
@@ -76,6 +65,7 @@ class Game extends React.Component{
   }
   nextFrame() {
     this.frame += 1;
+    if(this.isBig) this.isBig--;
     this.updatePositions();
     this.checkCollisions();
     this.draw();
@@ -100,7 +90,7 @@ class Game extends React.Component{
 
   
   updatePosition(entity){
-    if(entity.velocity.join(",")==="0,0") return true; //pellets
+    if(entity.velocity.join(",")==="0,0") return true; //stationary
     const [current_x, current_y] = entity.pos;
     let next_x = current_x + entity.velocity[0]*GameUtil.SNACCMAN_MOVE_SPEED;
     let next_y = current_y + entity.velocity[1]*GameUtil.SNACCMAN_MOVE_SPEED;
@@ -146,8 +136,15 @@ class Game extends React.Component{
   }
 
   checkCollisions(){
-
+    this.pellets.forEach((pellet, i)=>{
+      if(this.snaccman.collidesWith(pellet, this.grid)){
+        console.log("Yum");
+        if(pellet.type === BIG_PELLET) this.isBig = 60;
+        delete this.pellets[i];
+      }
+    });
   }
+
   draw(){
     //clear canvas
     const gameWidth = GameUtil.GameWidth(this.grid);
@@ -170,9 +167,7 @@ class Game extends React.Component{
     
     //Draw pellets first so ghosts can draw over them
 
-    /*for(let i = 0; i < this.pellets.length; i++ ){
-      drawPellet(i);
-    }*/
+    this.drawPellets();
 
     this.drawSnaccman();
 
@@ -269,25 +264,43 @@ class Game extends React.Component{
     }
 
     const img = GameUtil.IMAGES.snaccman[direction][imgNumber];
+    this.drawSprite(img, x_start, y_start, this.snaccman);
+  }
 
-    //offset to center the image
+  drawSprite(img, x, y, entity){
     const imgSize = GameUtil.IMG_SIZE;
     const pixelSize = GameUtil.PIXEL_SIZE;
     const spriteSize = GameUtil.SPRITE_PIXEL_SIZE;
-    
-    this.ctx.drawImage(img, x_start, y_start, spriteSize, spriteSize);
 
-    if(Math.ceil(this.snaccman.pos[0] + imgSize) >= this.grid.length){
- 
-      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start, spriteSize, spriteSize);
+    this.ctx.drawImage(img, x, y, spriteSize, spriteSize);
+    if (Math.ceil(entity.pos[0] + imgSize) >= this.grid.length) {
+      this.ctx.drawImage(img, x - (this.grid.length * pixelSize) - imgSize, y, spriteSize, spriteSize);
     }
-    if(Math.ceil(this.snaccman.pos[1] + imgSize) >= this.grid[0].length){
-      
-      this.ctx.drawImage(img, x_start, y_start - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
+    if (Math.ceil(entity.pos[1] + imgSize) >= this.grid[0].length) {
+      this.ctx.drawImage(img, x, y - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
     }
-    if ((Math.ceil(this.snaccman.pos[0] + imgSize) >= this.grid.length) && (Math.ceil(this.snaccman.pos[1] + imgSize) >= this.grid[0].length)) {
+    if ((Math.ceil(entity.pos[0] + imgSize) >= this.grid.length) && (Math.ceil(entity.pos[1] + imgSize) >= this.grid[0].length)) {
+      this.ctx.drawImage(img, x - (this.grid.length * pixelSize) - imgSize, y - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
+    }
+  }
 
-      this.ctx.drawImage(img, x_start - (this.grid.length * pixelSize) - imgSize, y_start - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
+  drawPellets(){
+    this.ctx.fillStyle = GameUtil.PELLET_COLOR;
+    this.ctx.strokeStyle = GameUtil.PELLET_COLOR;
+    this.pellets.forEach(pellet => this.drawPellet(pellet));
+    this.ctx.fill();
+    this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
+    this.ctx.strokeStyle = GameUtil.WALL_COLOR;
+  }
+  
+  drawPellet(pellet){
+    const [x,y] = GameUtil.getStartPositionForCell(...pellet.pos);
+    const offset = (GameUtil.PIXEL_SIZE / 2) - 1;
+    this.ctx.moveTo(x + offset, y + offset);
+    if(pellet.type === BIG_PELLET){
+      this.ctx.arc(x+offset, y + offset, GameUtil.BIG_PELLET_SIZE, 0, 2*Math.PI);
+    }else{
+      this.ctx.arc(x + offset, y + offset, GameUtil.PELLET_SIZE, 0, 2 * Math.PI);
     }
   }
 
