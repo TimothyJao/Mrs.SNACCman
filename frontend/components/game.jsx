@@ -1,6 +1,11 @@
 import React from "react";
 
-import * as GameUtil from "../util/game_util";
+import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
+IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
+PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
+
+import { GameUtil } from "../util/game_util";
+
 import {BIG_PELLET} from "../../classes/Entity";
 
 class Game extends React.Component{
@@ -13,7 +18,7 @@ class Game extends React.Component{
     this.snaccman = props.snaccman;
     // this.ghosts = props.ghosts;
     this.pellets = props.pellets;
-    this.grid = props.grid;
+    this.game = new GameUtil(props.grid);
 
     this.snaccman.bufferedVelocity = this.snaccman.velocity;
 
@@ -23,13 +28,13 @@ class Game extends React.Component{
   componentDidMount(){
     //set up drawing context
     this.ctx = document.querySelector("#game-canvas").getContext("2d");
-    this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
-    this.ctx.strokeStyle = GameUtil.WALL_COLOR;
-    this.ctx.font = GameUtil.FONT;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.font = FONT;
     //load the image assets, start rendering once they are loaded
-    GameUtil.loadImages(()=>{
+    this.game.loadImages(()=>{
       document.addEventListener("keydown", this.handleInput);
-      this.intervalId = setInterval(this.nextFrame, 1000 / GameUtil.FPS);
+      this.intervalId = setInterval(this.nextFrame, 1000 / FPS);
     });
   }
   componentWillUnmount(){
@@ -91,48 +96,38 @@ class Game extends React.Component{
   
   updatePosition(entity){
     if(entity.velocity.join(",")==="0,0") return true; //stationary
+
     const [current_x, current_y] = entity.pos;
-    let next_x = current_x + entity.velocity[0]*GameUtil.SNACCMAN_MOVE_SPEED;
-    let next_y = current_y + entity.velocity[1]*GameUtil.SNACCMAN_MOVE_SPEED;
-    
-    const imgSize = GameUtil.IMG_SIZE;
-    const wallSize = 1/GameUtil.PIXEL_SIZE;
+    const size = entity.size || IMG_SIZE;
 
-    const left = Math.floor(current_x + wallSize);
-    const top = Math.floor(current_y + wallSize);
-    const right = Math.floor(current_x + imgSize + 2*wallSize);
-    const bottom = Math.floor(current_y + imgSize + 2*wallSize);
+    let next_x = current_x + entity.velocity[0]*MOVE_SPEED;
+    let next_y = current_y + entity.velocity[1]*MOVE_SPEED;
 
-    const nextLeft = Math.floor(next_x + wallSize);
-    const nextTop = Math.floor(next_y + wallSize);
-    const nextRight = Math.floor(next_x + imgSize + 2*wallSize);
-    const nextBottom = Math.floor(next_y + imgSize + 2*wallSize);
+    const left = Math.floor(current_x + WALL_SIZE);
+    const top = Math.floor(current_y + WALL_SIZE);
+    const right = (current_x + size + 2 * WALL_SIZE);
+    const bottom = (current_y + size + 2 * WALL_SIZE);
+
+    const nextLeft = Math.floor(next_x + WALL_SIZE);
+    const nextTop = Math.floor(next_y + WALL_SIZE);
+    const nextRight = Math.floor(next_x + size + 2*WALL_SIZE);
+    const nextBottom = Math.floor(next_y + size + 2*WALL_SIZE);
   
     //prevent movement if there is a wall
     if(nextLeft < left){ //Attempting to move left
-      if (!this.getCell(left, top).canMoveLeft() || !this.getCell(left, bottom).canMoveLeft()) return false;
+      if (!this.game.getTopLeftCell(entity).canMoveLeft() || !this.game.getBottomLeftCell(entity).canMoveLeft()) return false;
     }
     if(nextTop < top){ //Attempting to move up
-      if (!this.getCell(left, top).canMoveUp() || !this.getCell(right, top).canMoveUp()) return false;
+      if (!this.game.getTopLeftCell(entity).canMoveUp() || !this.game.getTopRightCell(entity).canMoveUp()) return false;
     }
     if (nextRight > right){ //Attempting to move right
-      if (!this.getCell(right, top).canMoveRight() || !this.getCell(right, bottom).canMoveRight()) return false;
+      if (!this.game.getTopRightCell(entity).canMoveRight() || !this.game.getBottomRightCell(entity).canMoveRight()) return false;
     }
     if (nextBottom > bottom){ //Attempting to move down
-      if (!this.getCell(left, bottom).canMoveDown() || !this.getCell(right, bottom).canMoveDown()) return false;
+      if (!this.game.getBottomLeftCell(entity).canMoveDown() || !this.game.getBottomRightCell(entity).canMoveDown()) return false;
     }
-    entity.pos = [this.wrapX(next_x), this.wrapY(next_y)];
+    entity.pos = this.game.wrapPos([next_x, next_y]);
     return true;
-  }
-
-  wrapX(x){
-    return ((x%this.grid.length) + this.grid.length)%this.grid.length;
-  }
-  wrapY(y){
-    return ((y%this.grid[0].length) + this.grid[0].length)%this.grid[0].length;
-  }
-  getCell(x, y) {
-    return this.grid[Math.floor(this.wrapX(x))][Math.floor(this.wrapY(y))];
   }
 
   checkCollisions(){
@@ -147,19 +142,21 @@ class Game extends React.Component{
 
   draw(){
     //clear canvas
-    const gameWidth = GameUtil.GameWidth(this.grid);
-    const gameHeight = GameUtil.GameHeight(this.grid);
+    const gameWidth = this.game.GameWidth();
+    const gameHeight = this.game.GameHeight();
 
     this.ctx.clearRect(0,0,gameWidth, gameHeight);
     this.ctx.fillRect(0,0,gameWidth, gameHeight);
     //cache the background after drawing it once so we don't have to look at ~900 cells every frame
     if(!this.cachedBackground){
-      for(let x = 0; x < this.grid.length; x++){
-        for(let y = 0; y < this.grid[x].length; y++){
+      this.ctx.lineWidth = WALL_STROKE;
+      for(let x = 0; x < this.game.getWidth(); x++){
+        for(let y = 0; y < this.game.getHeight(); y++){
           this.drawCell(x,y);
         }
       }
       this.ctx.stroke();
+      this.ctx.lineWidth = 1;
       this.cachedBackground = this.ctx.getImageData(0,0,gameWidth, gameHeight);
     }else{
       this.ctx.putImageData(this.cachedBackground,0,0);
@@ -180,47 +177,49 @@ class Game extends React.Component{
     this.drawLives();
   }
   drawLives(){
-    const bottom = GameUtil.GameHeight(this.grid) - GameUtil.PADDING;
+    const bottom = this.game.GameHeight() - PADDING;
     const text = `Lives: ${this.lives}`;
-    this.ctx.strokeStyle = GameUtil.TEXT_COLOR;
-    this.ctx.fillStyle = GameUtil.TEXT_COLOR;
-    this.ctx.fillText(text, GameUtil.PADDING, bottom + 25);
-    this.ctx.strokeStyle = GameUtil.WALL_COLOR;
-    this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
+    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.fillText(text, PADDING, bottom + 25);
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
   }
 
   clearPadding(){
-    const gameWidth = GameUtil.GameWidth(this.grid);
-    const padding = GameUtil.PADDING;
-    const gameHeight = GameUtil.GameHeight(this.grid);
-    const pixelSize = GameUtil.PIXEL_SIZE;
+    const gameWidth = this.game.GameWidth();
+    const padding = PADDING;
+    const gameHeight = this.game.GameHeight();
+    const pixelSize = PIXEL_SIZE;
     //clear top padding
     this.ctx.fillRect(0, 0, gameWidth, padding);
     //clear left padding
     this.ctx.fillRect(0, 0, padding, gameHeight);
     //clear bottom padding
-    this.ctx.fillRect(0, padding + (pixelSize * this.grid[0].length), gameWidth, padding);
+    this.ctx.fillRect(0, padding + (pixelSize * this.game.getHeight()), gameWidth, padding);
     //clear right padding
-    this.ctx.fillRect(padding + pixelSize * this.grid.length, 0, padding, gameHeight);
+    this.ctx.fillRect(padding + pixelSize * this.game.getWidth(), 0, padding, gameHeight);
   }
 
   drawCell(x,y){
-    const [x_start, y_start] = GameUtil.getStartPositionForCell(x,y);
-    const [x_end, y_end] = GameUtil.getEndPositionForCell(x,y);
+    const [x_start, y_start] = this.game.getStartPositionForCell(x,y);
+    const [x_end, y_end] = this.game.getEndPositionForCell(x,y);
     //draw the walls if they can't move in that direction
-    if(!this.grid[x][y].canMoveUp()){
+    const cell = this.game.getCell(x,y);
+
+    if(!cell.canMoveUp()){
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_end, y_start);
     }
-    if(!this.grid[x][y].canMoveRight()){
+    if(!cell.canMoveRight()){
       this.ctx.moveTo(x_end, y_start);
       this.ctx.lineTo(x_end, y_end);
     }
-    if(!this.grid[x][y].canMoveDown()){
+    if(!cell.canMoveDown()){
       this.ctx.moveTo(x_start, y_end);
       this.ctx.lineTo(x_end, y_end);
     }
-    if(!this.grid[x][y].canMoveLeft()){
+    if(!cell.canMoveLeft()){
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_start, y_end);
     }
@@ -229,7 +228,7 @@ class Game extends React.Component{
   drawSnaccman(){
 
     //get position
-    const [x_start, y_start] = GameUtil.getStartPositionForCell(...this.snaccman.pos);
+    const [x_start, y_start] = this.game.getStartPositionForCell(...this.snaccman.pos);
     let direction = "right"; //default
     switch(this.snaccman.velocity.join(",")){
       case "1,0":
@@ -248,7 +247,7 @@ class Game extends React.Component{
 
     //sprite rotation = 0->1->0->2->repeat
     let imgNumber = 0;
-    switch (Math.floor(this.frame / GameUtil.SPRITE_DURATION) % 4){
+    switch (Math.floor(this.frame / SPRITE_DURATION) % 4){
       case 0:
         imgNumber = 0;
         break;
@@ -263,49 +262,49 @@ class Game extends React.Component{
         break;
     }
 
-    const img = GameUtil.IMAGES.snaccman[direction][imgNumber];
+    const img = IMAGES.snaccman[direction][imgNumber];
     this.drawSprite(img, x_start, y_start, this.snaccman);
   }
 
   drawSprite(img, x, y, entity){
-    const imgSize = GameUtil.IMG_SIZE;
-    const pixelSize = GameUtil.PIXEL_SIZE;
-    const spriteSize = GameUtil.SPRITE_PIXEL_SIZE;
+    const imgSize = IMG_SIZE;
+    const pixelSize = PIXEL_SIZE;
+    const spriteSize = SPRITE_PIXEL_SIZE;
 
     this.ctx.drawImage(img, x, y, spriteSize, spriteSize);
-    if (Math.ceil(entity.pos[0] + imgSize) >= this.grid.length) {
-      this.ctx.drawImage(img, x - (this.grid.length * pixelSize) - imgSize, y, spriteSize, spriteSize);
+    if (Math.ceil(entity.pos[0] + imgSize) >= this.game.getWidth()) {
+      this.ctx.drawImage(img, x - (this.game.getWidth() * pixelSize) - imgSize, y, spriteSize, spriteSize);
     }
-    if (Math.ceil(entity.pos[1] + imgSize) >= this.grid[0].length) {
-      this.ctx.drawImage(img, x, y - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
+    if (Math.ceil(entity.pos[1] + imgSize) >= this.game.getHeight()) {
+      this.ctx.drawImage(img, x, y - (this.game.getHeight() * pixelSize) - imgSize, spriteSize, spriteSize);
     }
-    if ((Math.ceil(entity.pos[0] + imgSize) >= this.grid.length) && (Math.ceil(entity.pos[1] + imgSize) >= this.grid[0].length)) {
-      this.ctx.drawImage(img, x - (this.grid.length * pixelSize) - imgSize, y - (this.grid[0].length * pixelSize) - imgSize, spriteSize, spriteSize);
+    if ((Math.ceil(entity.pos[0] + imgSize) >= this.game.getWidth()) && (Math.ceil(entity.pos[1] + imgSize) >= this.game.getHeight())) {
+      this.ctx.drawImage(img, x - (this.game.getWidth() * pixelSize) - imgSize, y - (this.game.getHeight() * pixelSize) - imgSize, spriteSize, spriteSize);
     }
   }
 
   drawPellets(){
-    this.ctx.fillStyle = GameUtil.PELLET_COLOR;
-    this.ctx.strokeStyle = GameUtil.PELLET_COLOR;
+    this.ctx.fillStyle = PELLET_COLOR;
+    this.ctx.strokeStyle = PELLET_COLOR;
     this.pellets.forEach(pellet => this.drawPellet(pellet));
     this.ctx.fill();
-    this.ctx.fillStyle = GameUtil.BACKGROUND_COLOR;
-    this.ctx.strokeStyle = GameUtil.WALL_COLOR;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.strokeStyle = WALL_COLOR;
   }
   
   drawPellet(pellet){
-    const [x,y] = GameUtil.getStartPositionForCell(...pellet.pos);
-    const offset = (GameUtil.PIXEL_SIZE / 2) - 1;
+    const [x,y] = this.game.getStartPositionForCell(...pellet.pos);
+    const offset = (PIXEL_SIZE / 2) - 1;
     this.ctx.moveTo(x + offset, y + offset);
     if(pellet.type === BIG_PELLET){
-      this.ctx.arc(x+offset, y + offset, GameUtil.BIG_PELLET_SIZE, 0, 2*Math.PI);
+      this.ctx.arc(x+offset, y + offset, BIG_PELLET_SIZE, 0, 2*Math.PI);
     }else{
-      this.ctx.arc(x + offset, y + offset, GameUtil.PELLET_SIZE, 0, 2 * Math.PI);
+      this.ctx.arc(x + offset, y + offset, PELLET_SIZE, 0, 2 * Math.PI);
     }
   }
 
   render(){
-    return <canvas id="game-canvas" width={GameUtil.GameWidth(this.grid)} height={GameUtil.GameHeight(this.grid)}/>;
+    return <canvas id="game-canvas" width={this.game.GameWidth()} height={this.game.GameHeight()}/>;
   }
 }
 
