@@ -2,6 +2,7 @@ import GridCell from "./GridCell"
 
 class Grid {
     constructor() {
+        /* aureliano - the strings can change to objects - used it for some testing */
         this.grid = [
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'X', 'X', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
             ['P', 'X', 'X', 'X', 'X', 'P', 'X', 'X', 'X', 'X', 'X', 'P', 'X', 'X', 'P', 'X', 'X', 'X', 'X', 'X', 'P', 'X', 'X', 'X', 'X', 'P'],

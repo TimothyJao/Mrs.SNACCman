@@ -20,6 +20,7 @@ class Ghost extends Entity {
         return 1;
     }
 
+    /* shortestPathToSnacMan - return shortest path coordinates from ghost to snaccman */
     shortestPathToSnacMan(grid, snaccman) {
         let ghostPos = [this.x, this.y]
         let snacManPos = [snaccman.x, snaccman.y]
