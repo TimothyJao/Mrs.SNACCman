@@ -1,7 +1,7 @@
-import Entity from "./Entity"
+import {Entity, GHOST} from "./Entity"
 
 class Ghost extends Entity{
-    constructor(x, y, type="ghost", velocity){
+    constructor(x, y, type=GHOST, velocity){
         super([x, y, type, velocity])
     }
 

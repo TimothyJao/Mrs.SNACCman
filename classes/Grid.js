@@ -1,6 +1,6 @@
 import GridCell from "./GridCell";
 import {transposeGrid} from "../frontend/util/game_util";
-import Entity from "./Entity";
+import {Entity, BIG_PELLET, PELLET} from "./Entity";
 
 const P = "P";
 const X = "X";
@@ -43,13 +43,15 @@ class Grid {
         ]);
 
         /* replaces all "P" and "B" with Entity objects */ 
+        this.pelletGrid = [];
         for (let i = 0; i < this.grid.length; i++) {
-            for (let j = 0; j < this.grid.length; j++){
-                if (grid[i][j] === "P"){
-                    grid[i][j] = new Entity(i, j, "pellet");
+            this.pelletGrid[i] = [];
+            for (let j = 0; j < this.grid[i].length; j++){
+                if (this.grid[i][j] === "P"){
+                    this.pelletGrid[i][j] = new Entity(i, j, PELLET);
                 }
-                else if (grid[i][j] === "B"){
-                    grid[i][j] = new Entity(i, j, "big pellet");
+                else if (this.grid[i][j] === "B"){
+                    this.pelletGrid[i][j] = new Entity(i, j, BIG_PELLET);
                 }
             }
         }
@@ -69,6 +71,9 @@ class Grid {
 
     getMoveGrid() {
         return this.moveGrid;
+    }
+    getPelletGrid(){
+        return this.pelletGrid;
     }
 }
 

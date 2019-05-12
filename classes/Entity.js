@@ -1,4 +1,9 @@
-class Entity {
+export const SNACCMAN = 0;
+export const GHOST = 1;
+export const PELLET = 2;
+export const BIG_PELLET = 3;
+
+export class Entity {
     constructor(x, y, type, velocity = [0, 0]) {
         this.pos = [x, y];
         this.type = type;
@@ -17,5 +22,3 @@ class Entity {
         return this.velocity;
     }
 }
-
-export default Entity

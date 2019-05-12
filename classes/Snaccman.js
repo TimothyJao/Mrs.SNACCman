@@ -1,7 +1,7 @@
-import Entity from "./Entity"
+import {Entity, BIG_PELLET, PELLET, GHOST, SNACCMAN} from "./Entity"
 
 class Snaccman extends Entity{
-    constructor(x, y, type="Snaccman", velocity){
+    constructor(x, y, type=SNACCMAN, velocity=[1,0]){
         super(x, y, type, velocity);
     }
 
@@ -31,13 +31,13 @@ class Snaccman extends Entity{
 
     handleCollide(otherEntity) {
         let type = otherEntity.getType();
-        if (type === "pellet"){
+        if (type === PELLET){
             //delete pellet
         }
-        else if (type === "big pellet"){
+        else if (type === BIG_PELLET){
             //make ghosts killable
         }
-        else if (type === "ghost"){
+        else if (type === GHOST){
             if (otherEntity.killable){
                 //kill the ghost
             } else{
@@ -47,4 +47,4 @@ class Snaccman extends Entity{
     }
 }
 
-export default Snaccman
+export default Snaccman;
