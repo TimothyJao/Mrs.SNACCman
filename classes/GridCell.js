@@ -1,8 +1,8 @@
 class GridCell {
     constructor(grid, position) {
-        this.grid = grid,
-            this.x = position[0],
-            this.y = position[1]
+        this.grid = grid
+        this.x = position[0]
+        this.y = position[1]
     }
 
     //These set of functions determine if an entity can move in the given direction.
