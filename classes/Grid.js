@@ -21,7 +21,7 @@ class Grid {
             [X, X, X, X, X, P, X, X, X, X, X, E, X, X, E, X, X, X, X, X, P, X, X, X, X, X,],
             [X, X, X, X, X, P, X, X, E, E, E, E, E, E, E, E, E, E, X, X, P, X, X, X, X, X,],
             [X, X, X, X, X, P, X, X, E, X, X, X, G, G, X, X, X, E, X, X, P, X, X, X, X, X,],
-            [X, X, X, X, X, P, X, X, E, X, E, E, E, E, E, E, X, E, E, E, P, X, X, X, X, X,],
+            [X, X, X, X, X, P, X, X, E, X, E, E, E, E, E, E, X, E, X, X, P, X, X, X, X, X,],
             [E, E, E, E, E, P, E, E, E, X, E, E, E, E, E, E, X, E, E, E, P, E, E, E, E, E,],
             [X, X, X, X, X, P, X, X, E, X, E, E, E, E, E, E, X, E, X, X, P, X, X, X, X, X,],
             [X, X, X, X, X, P, X, X, E, X, X, X, X, X, X, X, X, E, X, X, P, X, X, X, X, X,],
