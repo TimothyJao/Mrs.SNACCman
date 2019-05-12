@@ -30,6 +30,7 @@ class Ghost extends Entity{
 
     /* shortestPathToSnacMan - return shortest path coordinates from ghost to snaccman */
     shortestPathToSnacMan(grid, snaccman) {
+        // in coorditnate form 
         let ghostPos = [this.x, this.y]
         let snacManPos = [snaccman.x, snaccman.y]
         /* set up valid positions that the ghost can travel to */
@@ -46,7 +47,7 @@ class Ghost extends Entity{
             let y = nextGhostPos[1];
              for (let i = 0; i < grid[x].length; i++) {
                 /*  if the position has not been visisted -> visit path, and set predecessor path */
-                if ((visited[grid[x][i].x][grid[x][i]].y) === false) {
+                if ((visited[grid[x][i].x][grid[x][i].y]) === false) {
                     /* update values for shortest path -> by default we dont explore the X's - ie the grids that the ai should not go through*/
                     visited[grid[x][i].x][grid[x][i].y] = true;
                     // pred[grid[x[i].x][grid[x[i].y] = grid[x[x;
