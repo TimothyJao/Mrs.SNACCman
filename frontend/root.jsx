@@ -2,6 +2,8 @@ import ReactDOM from "react-dom";
 import React from "react";
 import Game from "./components/game";
 import Grid from "../classes/Grid";
+/* socket io */
+//import socketIOClient from 'socket.io-client';
 import Snaccman from "../classes/Snaccman";
 import { Entity, SNACCMAN, BIG_PELLET, PELLET} from "../classes/Entity";
 
