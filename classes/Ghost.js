@@ -35,7 +35,7 @@ class Ghost extends Entity{
         /* set up valid positions that the ghost can travel to */
         visited_grid = setUpVisitedNodes(grid);
         /* pred - holds the previous objects the ghost has traveled to */
-        let pred = [];
+        let pred = [[].[]];
         let queue = [];
 
          /* bfs traversal */
