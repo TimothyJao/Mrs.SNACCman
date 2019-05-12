@@ -30,7 +30,7 @@ class Game extends React.Component{
     //temporary variables for testing
     //this.grid = GameUtil.transposedTestGrid;
     this.snaccman = {
-      pos: [1,14], //figure out the real starting coords
+      pos: [12.5,22], //figure out the real starting coords
       velocity: [1,0]
     };
     this.bufferedVelocity = this.snaccman.velocity;
