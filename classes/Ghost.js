@@ -62,13 +62,6 @@ class Ghost extends Entity{
             }
         }
     }
-
-
-    nextMove(){}
-    
-    setPos(pos){
-        this.pos = pos;
-    }
 }
 
 export default Ghost
