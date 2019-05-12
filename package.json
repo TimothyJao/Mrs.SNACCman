@@ -4,8 +4,8 @@
   "description": "mern project",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "server": "nodemon app.js",
+    "start": "node server.js",
+    "server": "nodemon server.js",
     "webpack": "webpack --watch --mode=development"
   },
   "repository": {
