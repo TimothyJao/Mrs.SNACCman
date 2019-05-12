@@ -1,8 +1,59 @@
+//colors
 export const BACKGROUND_COLOR = "rgb(0,0,0)"; //black
 export const WALL_COLOR = "rgb(0,0,255)"; //blue
-export const PIXEL_SIZE = 32; //Size of each cell in the grid
-export const PADDING = 30; //padding around the edge of the grid, possibly to render score onto or something
-export const FPS = 30; //change FPS
+
+//for drawing the actual board
+export const PIXEL_SIZE = 28; //Size of each cell in the grid
+export const PADDING = 20; //padding around the edge of the grid, possibly to render score onto or something
+
+//for sprite rendering calculations
+export const SPRITE_DURATION = 6; //how long to display each sprite before switching
+export const SPRITE_PIXEL_SIZE = 24; //Sprite size in pixels
+export const IMG_SIZE = SPRITE_PIXEL_SIZE/PIXEL_SIZE; //Logical size of sprite img for calculating board position
+
+//offset the sprite for transparent padding
+export const SPRITE_OFFSET_X = 0; //pixel size for invisible left padding
+export const SPRITE_OFFSET_Y = 0; //pixel size for invisible top padding
+export const OFFSET_X_SIZE = SPRITE_OFFSET_X/PIXEL_SIZE; //in logical size
+export const OFFSET_Y_SIZE = SPRITE_OFFSET_Y/PIXEL_SIZE; //in logical size
+
+export const FPS = 30;
+export const SNACCMAN_MOVE_SPEED = 2 * 1/PIXEL_SIZE;
+
+export const IMAGES = {
+  snaccman: {
+    left: [],
+    right: [],
+    up: [],
+    down: []
+  },
+};
+
+//preload images for drawing, callback when completed
+export const loadImages = (callback)=>{
+  let count = 0; //how many images have loaded?
+
+  //snaccman images will be /image/up-1.png, ..., /images/right-3.png
+  const directions = ["up", "down", "left", "right"];
+  const sprites = 3; 
+
+  directions.forEach(direction => {
+    for(let i = 1; i <= sprites; i++){
+      let img = new Image();
+      img.onload = loaded;
+      img.src = `images/${direction}-${i}.png`;
+      IMAGES.snaccman[direction].push(img);
+    }
+  });
+  //gets called when an image gets loaded
+  function loaded(){
+    count++;
+    if(count >= directions.length * sprites){
+      //execute callback when all images have successfully loaded
+      callback();
+    }
+  }
+};
 
 //Expects grid to be a uniformly sized 2D array with coordinates [x][y]
 export const GameWidth = (grid)=>((2*PADDING) + (PIXEL_SIZE*grid.length));

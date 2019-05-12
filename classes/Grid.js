@@ -42,9 +42,9 @@ class Grid {
 
         this.moveGrid = [];
         for (let i = 0; i < 26; i++) {
-            this.grid[i] = [];
+            this.moveGrid[i] = [];
             for (let j = 0; j < 29; j++) {
-                this.grid[i].push(new GridCell(this.grid, [i, j]))
+                this.moveGrid[i].push(new GridCell(this.grid, [i, j]))
             }
         }
     }
