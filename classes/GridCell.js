@@ -18,7 +18,7 @@ class GridCell {
     }
 
     canMoveLeft() {
-        if (((this.y === 0) || this.grid[this.x][this.y - 1] === "X") && (this.x != 13 && this.y != 0) {
+        if (((this.y === 0) || this.grid[this.x][this.y - 1] === "X") && (this.x != 13 && this.y != 0)) {
             return false;
         } else {
             return true;

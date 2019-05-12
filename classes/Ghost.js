@@ -5,18 +5,12 @@ class Ghost extends Entity{
         super([x, y, type, velocity])
     }
 
-    nextMove() { } //ALGORITHM HERE
-    }
-
     setPos(pos){
         this.pos = pos
     }
 
     setVelocity(velocity){
         this.velocity = velocity;
-class Ghost extends Entity {
-    constructor(x, y, type="ghost", velocity=[1, 0]){
-        super(x, y, type, velocity)
     }
 
     /**setUpVisitedNodes - returns a boolean matrix of valid nodes a ghost can traverse */
