@@ -4,9 +4,9 @@ import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SP
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
 PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
 
-import { GameUtil } from "../util/game_util";
+import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../../classes/Entity";
 
-import {BIG_PELLET} from "../../classes/Entity";
+import { GameUtil } from "../util/game_util";
 
 class Game extends React.Component{
   constructor(props){
@@ -14,6 +14,7 @@ class Game extends React.Component{
     this.frame = 0;
     this.isBig = 0;
     this.lives = 3;
+    this.pelletCount = 999;
 
     this.snaccman = props.snaccman;
     // this.ghosts = props.ghosts;
@@ -131,13 +132,14 @@ class Game extends React.Component{
   }
 
   checkCollisions(){
-    this.pellets.forEach((pellet, i)=>{
-      if(this.snaccman.collidesWith(pellet, this.grid)){
-        console.log("Yum");
-        if(pellet.type === BIG_PELLET) this.isBig = 60;
-        delete this.pellets[i];
-      }
-    });
+    // this.pellets.forEach((pellet, i)=>{
+    //   if(this.snaccman.collidesWith(pellet, this.grid)){
+    //     console.log("Yum");
+    //     if(pellet.type === BIG_PELLET) this.isBig = 60;
+    //     delete this.cachedPellets;
+    //     delete this.pellets[i];
+    //   }
+    // });
   }
 
   draw(){
@@ -163,8 +165,12 @@ class Game extends React.Component{
     }
     
     //Draw pellets first so ghosts can draw over them
-
-    this.drawPellets();
+    if(!this.cachedPellets){
+      this.drawPellets();
+      this.cachedPellets = this.ctx.getImageData(0,0,gameWidth, gameHeight);
+    }else{
+      this.ctx.putImageData(this.cachedPellets,0,0);
+    }
 
     this.drawSnaccman();
 
@@ -284,21 +290,24 @@ class Game extends React.Component{
   }
 
   drawPellets(){
+    this.pelletCount = 0;
     this.ctx.fillStyle = PELLET_COLOR;
     this.ctx.strokeStyle = PELLET_COLOR;
-    this.pellets.forEach(pellet => this.drawPellet(pellet));
+    this.pellets.forEach(pelletRow => pelletRow.forEach(pellet => this.drawPellet(pellet)));
     this.ctx.fill();
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
   }
   
   drawPellet(pellet){
+    if(!pellet) return;
+    this.pelletCount+=1;
     const [x,y] = this.game.getStartPositionForCell(...pellet.pos);
     const offset = (PIXEL_SIZE / 2) - 1;
     this.ctx.moveTo(x + offset, y + offset);
     if(pellet.type === BIG_PELLET){
       this.ctx.arc(x+offset, y + offset, BIG_PELLET_SIZE, 0, 2*Math.PI);
-    }else{
+    }else if(pellet.type === PELLET){
       this.ctx.arc(x + offset, y + offset, PELLET_SIZE, 0, 2 * Math.PI);
     }
   }
