@@ -37,7 +37,7 @@ class Ghost extends Entity{
             for (let i = 0; i < ghostValidPositions.length; i++) {
                 if (visited.includes(ghostValidPositions[i]) === false) {
                     queue.push(ghostValidPositions[i]);
-                    path[currentGhostPosition.toString()] = ghostValidPositions[I];
+                    path[ghostValidPositions[i]] = currentGhostPosition[I];
                 }
             }
         }
