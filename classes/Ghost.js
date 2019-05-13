@@ -18,11 +18,6 @@ class Ghost extends Entity{
 
     /* shortestPathToSnacMan - return shortest path coordinates from ghost to snaccman */
     shortestPathToSnacMan(snaccman, ghost) {
-        // let ghostPos = [ghost.x, ghost.y]
-        // let snacManPos = [snaccman.x, snaccman.y]
-        /* set up valid positions that the ghost can travel to */
-        // let visited_grid = this.setUpVisitedNodes(grid);
-        /* pred - holds the previous objects the ghost has traveled to */
         let queue = [];
         let visited = [];
         let path = {};
