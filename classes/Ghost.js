@@ -1,4 +1,4 @@
-import {Entity, GHOST} from "./Entity"
+import {Entity, GHOST} from "./Entity";
 
 class Ghost extends Entity{
     constructor(x, y, type=GHOST, velocity){
@@ -76,4 +76,4 @@ class Ghost extends Entity{
     }
 }
 
-export default Ghost
+export default Ghost;

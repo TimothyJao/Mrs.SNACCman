@@ -8,13 +8,13 @@ const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
-const cors = require('cors');
+
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /* amount of max players to connect  */
-const connections = [null, null, null, null, null];
+//const connections = [null, null, null, null, null];
 // const express = require("express");
 // const app = express();
 // const db = require("./config/keys").mongoURI;
@@ -32,12 +32,16 @@ function generateRandomId(len) {
     return result;
 }
 
-app.get('*', function (req, res) {
-    res.sendFile(path.join(__dirname, './index.html'));
-});
+// if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('frontend/build'));
+    app.get('/', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+// }
 
+app.get('/', (req, res) => res.send('Hello, world!'));
 
-server.listen(port, () => console.log(`Listening on port ${PORT}`))
+server.listen(port, () => console.log(`Listening on port ${port}`))
 
 /* Handle Connections to React Actions here */
 io.on('connection', (client) => {

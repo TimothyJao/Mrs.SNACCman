@@ -235,7 +235,6 @@ class Game extends React.Component{
   }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
-
     //center of snaccman to test eating
     const center = this.game.wrapPos([start_x + (IMG_SIZE/2), start_y+(IMG_SIZE/2)]);
     this.center = center;
@@ -486,7 +485,7 @@ class Game extends React.Component{
 
   drawPellets(){
     this.ctx.beginPath();
-    this.pelletCount = 0;
+     
     this.ctx.fillStyle = PELLET_COLOR;
     this.ctx.strokeStyle = PELLET_COLOR;
     this.pellets.forEach(pelletRow => pelletRow.forEach(pellet => this.drawPellet(pellet)));
