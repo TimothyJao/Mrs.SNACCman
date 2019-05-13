@@ -4,11 +4,16 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const http = require('http');
-const PORT = 5000;
+const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-// const index = require("./index.html");
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+
+
 // const express = require("express");
 // const app = express();
 // const db = require("./config/keys").mongoURI;
@@ -17,25 +22,29 @@ const io = require('socket.io')(server);
 //   .then(() => console.log("Connected to MongoDB successfully"))
 //   .catch(err => console.log(err));
 
-/* read the index.html file to host on localhost::5000 */
-// app.get("/", function(req, res){
-//   res.sendFile(__dirname + '/index.html');
-// });
+/*  generateRandomId- random id generated to join a lobby */
+function generateRandomId(len) {
+    let result = "";
+    for (let i = 0; i < len; i++) {
+        result += Math.floor(Math.random() * 10);
+    }
+    return result;
+}
 
 
-
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+//TODO: read the react component
+app.get('*', function (req, res) {
+    res.sendFile(path.join(__dirname, './index.html'));
 });
 
 
-server.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+server.listen(port, () => console.log(`Listening on port ${PORT}`))
 
-// const port = process.env.PORT || 5000;
-io.on('connection', socket => {
+/* Handle Connections to React Actions here */
+io.on('connection', (client) => {
     console.log('User connected')
 
-    socket.on('disconnect', () => {
+    client.on('disconnect', () => {
         console.log('user disconnected')
     })
 })

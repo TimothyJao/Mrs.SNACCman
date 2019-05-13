@@ -1,5 +1,6 @@
 import React from "react";
-import io from "socket.io-client";
+import io from "socket.io-client"; 
+const socket = openSocket('http://localhost:5000');
 
 import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
