@@ -62,23 +62,23 @@ Classes: This folder holds all the classes for the various game objects and the 
 Game.js: Handles all the game logic and rendering
 
 ### Implementation Timeline
-####Day 1:
+#### Day 1:
 
 - [ ] Build a grid and walls that Snaccman can transverse
 - [ ] Start User Authentication
 
-####Day 2:
+#### Day 2:
 - [ ] Add moving sprites and basic game logic
 - [ ] Complete User Authentication
 
-####Day 3:
+#### Day 3:
 - [ ] Finish clone and integrate with User Authentication
 - [ ] Start adding multiplayer functionalities
 
-####Day 4:
+#### Day 4:
 - [ ] Finish adding multiplayer
 - [ ] Style website
 - [ ] Start lobby
 
-####Day 5: 
+#### Day 5: 
 - [ ] Finish lobby
