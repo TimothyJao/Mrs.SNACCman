@@ -16,8 +16,11 @@ class Game extends React.Component{
     super(props);
     this.frame = 0;
     this.isSuper = 0;
+    this.score = 0;
+    this.delay = 0;
+    this.multiplier = 1;
     this.lives = 3;
-    this.pelletCount = 999;
+    this.pelletCount = 999; // Needs to be > 1, gets reset when pellets are drawn
     this.start_position = [12.5, 22];
     this.respawn_location = [12, 10];
     this.ghostRegion = [[9,11],[16,15]];
@@ -40,6 +43,7 @@ class Game extends React.Component{
 
     this.nextFrame = this.nextFrame.bind(this);
     this.handleInput = this.handleInput.bind(this);
+    this.drawWinScreen = this.drawWinScreen.bind(this);
   }
   componentDidMount(){
     //set up drawing context
@@ -143,10 +147,19 @@ class Game extends React.Component{
       case 53: //5 -> switch to ghost 4
         this.player = 4;
         break;
+      case 187: //+ wins the game for testing
+        this.pellets.forEach((row, x)=>{
+          row.forEach((cell, y)=>{
+            if(cell !== undefined) delete this.pellets[x][y];
+          });
+        });
+        this.pelletCount = 0;
+        break;
     }
   }
   killSnaccman(){
     this.snaccman.pos = this.start_position;
+    this.multiplier = 1;
     this.snaccman.velocity = [1,0];
     this.snaccman.bufferedVelocity = [1,0];
     this.frame = 0;
@@ -178,10 +191,24 @@ class Game extends React.Component{
       return;
     }
     this.frame += 1;
-    if(this.isSuper) this.isSuper--;
-    this.updatePositions();
-    this.checkCollisions();
-    this.draw();
+    //display things if there isn't a delay
+    if(!this.delay){
+      this.display = [];
+      if(this.isSuper){
+        this.isSuper--;
+        if(this.isSuper === 0){
+          this.multiplier = 1; //reset ghost multiplier
+        }
+      } 
+      this.updatePositions();
+      this.checkCollisions();
+      this.draw();
+    }else{
+      //display score popup over the ghost you just ate
+      this.delay--;
+      this.draw();
+      this.drawScorePopup();
+    }
     if(this.pelletCount === 0){
       this.win();
     }
@@ -191,7 +218,9 @@ class Game extends React.Component{
     clearInterval(this.intervalId);
   }
   win(){
+    this.frame = 0;
     clearInterval(this.intervalId);
+    this.intervalId = setInterval(this.drawWinScreen, 1000/FPS);
   }
 
   updatePositions(){
@@ -199,10 +228,16 @@ class Game extends React.Component{
     this.updateEntity(this.snaccman);
     this.ghosts.forEach((ghost, i)=>{
       if(this.player - 1 !== i) this.computeNextMove(ghost);
-    });
-    this.ghosts.forEach((ghost, i)=>{
-      if(ghost.spawning > 0) ghost.spawning--;
-      if(ghost.spawning === 0) this.updateEntity(ghost);
+      if (ghost.spawning > 0) ghost.spawning--;
+      if (ghost.spawning === 0 && (!this.isSuper || ghost.dead)) this.updateEntity(ghost);
+      //only move ghosts half speed when in snacctime
+      if (ghost.spawning === 0 && !ghost.dead && this.isSuper && this.frame % 2 === 0) this.updateEntity(ghost);
+      //move ghost double speed when dead
+      if(ghost.dead){
+        if (this.player - 1 !== i) this.computeNextMove(ghost);
+        if (ghost.spawning > 0) ghost.spawning--;
+        if (ghost.spawning === 0) this.updateEntity(ghost);
+      }
     });
   }
   updateEntity(entity){
@@ -294,10 +329,12 @@ class Game extends React.Component{
         if (distance(center, pellet_pos) < BIG_PELLET_SIZE / PIXEL_SIZE) {
           delete this.pellets[cell.x][cell.y];// = {type: "NOT_A_PELLET", pos: [0,0]};
           this.snaccTime();
+          this.score+=10;
         }
       } else if (pellet.type === PELLET) {
         if (distance(center, pellet_pos) < PELLET_SIZE / PIXEL_SIZE) {
           delete this.pellets[cell.x][cell.y];// = { type: "NOT_A_PELLET", pos: [0, 0] };
+          this.score+=10;
         }
       }
     }
@@ -310,6 +347,10 @@ class Game extends React.Component{
           //nothing, ghost is dead
         }else if(this.isSuper){
           ghost.dead = true;
+          this.delay = 0.75*FPS;
+          this.score += 200 * this.multiplier;
+          this.display = [200*this.multiplier, ghostCenter];
+          this.multiplier*=2;
         }else{
           if(!killed) this.killSnaccman(); //prevent multikill
           killed=true;
@@ -430,19 +471,41 @@ class Game extends React.Component{
     this.clearPadding();
     this.drawBottom();
   }
+  drawScorePopup(){
+
+    const scoreText = this.display[0];
+    let [center_x, center_y] = this.display[1];
+    center_x*=PIXEL_SIZE;
+    center_y*=PIXEL_SIZE;
+    center_x+=PADDING;
+    center_y+=PADDING;
+    this.ctx.textAlign = "center";
+    this.ctx.font = "20px monospace";
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.fillText(scoreText, center_x, center_y - 5);
+    this.ctx.strokeText(scoreText, center_x, center_y - 5);
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.font = FONT;
+    this.ctx.textAlign = "left";
+    this.ctx.closePath();
+
+  }
   drawBottom(){
     const bottom = this.game.GameHeight() - PADDING;
     let text = (this.lives > 0) ? `Lives: ${this.lives}` : "GAME OVER!";
-    if(this.lives > 0 && this.pelletCount){
-      text+= ` Left: ${this.pelletCount}`;
+    if (this.lives > 0 && this.pelletCount === 0) {
+      text = "WINNER!!!";
     }
-    if(this.isSuper){
+    text+= ` Score: ${this.score}`;
+
+    if(this.isSuper && this.lives > 0 && this.pelletCount > 0){
       const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
       text += ` SNACC TIME!!! ${SNACC_TIME}`;
     }
-    if(this.lives > 0 && this.pelletCount === 0){
-      text = "WINNER!!!";
-    }
+    
     this.ctx.beginPath();
     this.ctx.strokeStyle = TEXT_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
@@ -620,6 +683,39 @@ class Game extends React.Component{
     }else if(pellet.type === PELLET){
       this.ctx.arc(x + offset, y + offset, PELLET_SIZE, 0, 2 * Math.PI);
     }
+  }
+
+  drawWinScreen(){
+    this.frame++;
+    if(this.frame > 1.25*FPS){
+      clearInterval(this.intervalId);
+      return;
+    }
+    //clear canvas
+    const gameWidth = this.game.GameWidth();
+    const gameHeight = this.game.GameHeight();
+
+    this.ctx.clearRect(0, 0, gameWidth, gameHeight);
+    this.ctx.fillRect(0, 0, gameWidth, gameHeight);
+    //cache the background after drawing it once so we don't have to look at ~900 cells every frame
+    this.ctx.beginPath();
+    this.ctx.lineWidth = WALL_STROKE;
+    this.ctx.strokeStyle = (this.frame * 2 % FPS < FPS / 2) ? TEXT_COLOR : WALL_COLOR;
+    for (let x = 0; x < this.game.getWidth(); x++) {
+      for (let y = 0; y < this.game.getHeight(); y++) {
+        this.drawCell(x, y);
+      }
+    }
+    this.ctx.stroke();
+    this.ctx.lineWidth = 1;
+    this.ctx.closePath();
+    // this.drawSnaccman();
+
+    // this.ghosts.forEach((ghost, idx) => this.drawGhost(ghost, idx));
+
+    //clear the padding for wrapped images
+    this.clearPadding();
+    this.drawBottom();
   }
 
   render(){
