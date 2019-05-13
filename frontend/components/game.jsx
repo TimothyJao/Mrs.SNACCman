@@ -19,6 +19,9 @@ class Game extends React.Component{
     this.pelletCount = 999;
     this.start_position = [12.5, 22];
 
+    this.waiting = true;
+    this.loading = 3*FPS;
+
     this.snaccman = props.snaccman;
     // this.ghosts = props.ghosts;
     this.pellets = props.pellets;
@@ -48,9 +51,19 @@ class Game extends React.Component{
   }
   handleInput(e){
     switch(e.keyCode){
+      case 13://Enter begins the game
+        if(this.waiting){
+          this.loading = 3*FPS;
+          this.waiting = false;
+        }else if(this.loading){
+          this.loading = 0;
+        }
+        break;
       case 81: //q quits the game for testing
         console.log("Snaccman: ");
         console.log(this.snaccman);
+        console.log("Center of snaccman: ");
+        console.log(this.center);
         clearInterval(this.intervalId);
         document.removeEventListener("keydown", this.handleInput);
         break;
@@ -84,10 +97,22 @@ class Game extends React.Component{
     this.snaccman.bufferedVelocity = [1,0];
     this.isSuper = 0;
     if(this.lives > 0) this.lives--;
+    this.loading = 3*FPS;
   }
   nextFrame() {
     if(this.lives <= 0){
       this.gameOver();
+      return;
+    }
+    if(this.waiting){
+      this.draw();
+      this.drawWaiting();
+      return;
+    }
+    if(this.loading){
+      this.loading--;
+      this.draw();
+      this.drawLoading();
       return;
     }
     this.frame += 1;
@@ -165,30 +190,23 @@ class Game extends React.Component{
   }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
-    const edges = [
-      this.game.wrapPos([start_x+(IMG_SIZE/2), start_y]), //top
-      this.game.wrapPos([start_x, start_y+(IMG_SIZE/2)]), //left
-      this.game.wrapPos([start_x+(IMG_SIZE/2), start_y+IMG_SIZE]), //bottom
-      this.game.wrapPos([start_x+IMG_SIZE, start_y+(IMG_SIZE/2)]) //right
-    ];
-    for(let i = 0; i < edges.length; i++){
-      const edge = edges[i];
-      const cell = this.game.getCellAtPos(edge);
-      
-      const pellet = this.pellets[cell.x][cell.y];
-      if(pellet){
-        const pellet_pos = [pellet.pos[0]+0.5, pellet.pos[1]+0.5]; //pellet is centered
-        if(pellet.type === BIG_PELLET){
-          if(distance(edge, pellet_pos) < BIG_PELLET_SIZE/PIXEL_SIZE){
-            delete this.pellets[cell.x][cell.y];// = {type: "NOT_A_PELLET", pos: [0,0]};
-            this.snaccTime();
-            break;
-          } 
-        }else if(pellet.type === PELLET){
-          if (distance(edge, pellet_pos) < PELLET_SIZE/PIXEL_SIZE) {
-            delete this.pellets[cell.x][cell.y];// = { type: "NOT_A_PELLET", pos: [0, 0] };
-            break;
-          } 
+
+    //center of snaccman to test eating
+    const center = this.game.wrapPos([start_x + (IMG_SIZE/2), start_y+(IMG_SIZE/2)]);
+    this.center = center;
+    const cell = this.game.getCellAtPos(center);
+    const pellet = this.pellets[cell.x][cell.y];
+
+    if (pellet) {
+      const pellet_pos = [pellet.pos[0] + 0.5, pellet.pos[1] + 0.5]; //pellet is centered
+      if (pellet.type === BIG_PELLET) {
+        if (distance(center, pellet_pos) < BIG_PELLET_SIZE / PIXEL_SIZE) {
+          delete this.pellets[cell.x][cell.y];// = {type: "NOT_A_PELLET", pos: [0,0]};
+          this.snaccTime();
+        }
+      } else if (pellet.type === PELLET) {
+        if (distance(center, pellet_pos) < PELLET_SIZE / PIXEL_SIZE) {
+          delete this.pellets[cell.x][cell.y];// = { type: "NOT_A_PELLET", pos: [0, 0] };
         }
       }
     }
@@ -230,13 +248,13 @@ class Game extends React.Component{
 
     //clear the padding for wrapped images
     this.clearPadding();
-    this.drawLives();
+    this.drawBottom();
   }
-  drawLives(){
+  drawBottom(){
     const bottom = this.game.GameHeight() - PADDING;
     let text = (this.lives > 0) ? `Lives: ${this.lives}` : "GAME OVER!";
     if(this.lives > 0 && this.pelletCount){
-      text+= ` LEFT: ${this.pelletCount}`;
+      text+= ` Left: ${this.pelletCount}`;
     }
     if(this.isSuper){
       const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
@@ -249,6 +267,36 @@ class Game extends React.Component{
     this.ctx.strokeStyle = TEXT_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING, bottom + 25);
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.closePath();
+  }
+  drawWaiting(){
+    const [x,y] = [PADDING/2, this.game.GameHeight() / 2 - PADDING/2];
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.fillRect(x,y,this.game.GameWidth()-(PADDING),50);
+    this.ctx.strokeRect(x,y,this.game.GameWidth()-(PADDING),50);
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Press ENTER to begin", this.game.GameWidth()/2, y+30);
+    this.ctx.textAlign = "left";
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.closePath();
+  }
+  drawLoading() {
+    const [x, y] = [PADDING/2, this.game.GameHeight() / 2 - PADDING/2];
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.fillRect(x, y, this.game.GameWidth() - (PADDING), 50);
+    this.ctx.strokeRect(x, y, this.game.GameWidth() - (PADDING), 50);
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.textAlign = "center";
+    const timer = (1 + this.loading / FPS).toString().slice(0, 1);
+    const text = (this.lives === 3) ? `Beginning in ${timer}` : `Next round in ${timer}`;
+    this.ctx.fillText(text, this.game.GameWidth()/2, y + 30);
+    this.ctx.textAlign = "left";
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();

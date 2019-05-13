@@ -20,7 +20,7 @@ export const IMG_SIZE = SPRITE_PIXEL_SIZE / PIXEL_SIZE; //Logical size of sprite
 export const BIG_PELLET_SIZE = Math.ceil(PIXEL_SIZE / 5);
 export const PELLET_SIZE = Math.ceil(PIXEL_SIZE / 10);
 
-export const FPS = 30;
+export const FPS = 60;
 export const MOVE_SPEED = 2 * 1 / PIXEL_SIZE;
 
 //populated by GameUtil via loadImages()
