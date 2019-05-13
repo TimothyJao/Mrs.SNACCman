@@ -29,14 +29,16 @@ class Ghost extends Entity{
         queue.push(ghost);
         while (queue.length > 0) {
             let currentGhostPosition =  queue.shift();
-            visited.push(ghost)
+            visited.push(currentGhostPosition);
             if (currentGhostPosition == snaccman) {
                return path; 
             }
             let ghostValidPositions =  currentGhostPosition.neighbors;
             for (let i = 0; i < ghostValidPositions.length; i++) {
-                queue.push(ghostValidPositions[i]);
-                path[ghostValidPositions[i]] = currentGhostPosition;
+                if (visited.includes(ghostValidPositions[i]) === false) {
+                    queue.push(ghostValidPositions[i]);
+                    path[ghostValidPositions[i]] = currentGhostPosition;
+                }
             }
         }
     }
