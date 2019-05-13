@@ -53,6 +53,9 @@ class GridCell {
         }
         return this.right;
     }
+    toString(){
+        return `${this.x},${this.y}`;
+    }
 }
 
 export default GridCell;

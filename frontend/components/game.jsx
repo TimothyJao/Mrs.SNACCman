@@ -277,7 +277,7 @@ class Game extends React.Component{
     const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
     const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
-    return ghost.shortestPathToSnacMan(this.game.getGrid(), { x: snaccmanCell.x, y: snaccmanCell.y }, { x: ghostCell.x, y: ghostCell.y });
+    return ghost.shortestPathToSnacMan(snaccmanCell, ghostCell);
   }
 
   draw(){
@@ -485,7 +485,7 @@ class Game extends React.Component{
 
   drawPellets(){
     this.ctx.beginPath();
-     
+    this.pelletCount = 0;
     this.ctx.fillStyle = PELLET_COLOR;
     this.ctx.strokeStyle = PELLET_COLOR;
     this.pellets.forEach(pelletRow => pelletRow.forEach(pellet => this.drawPellet(pellet)));
