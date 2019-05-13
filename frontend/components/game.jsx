@@ -148,6 +148,7 @@ class Game extends React.Component{
     if(this.pelletCount === 0){
       this.win();
     }
+    this.win();
   }
   gameOver(){
     this.draw();
@@ -277,7 +278,12 @@ class Game extends React.Component{
     const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
     const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
-    return ghost.shortestPathToSnacMan(snaccmanCell, ghostCell);
+    const path = ghost.shortestPathToSnacMan(snaccmanCell, ghostCell);
+    let cell = snaccmanCell;
+    while(path[cell.toString()]!=ghostCell){
+      cell=path[cell.toString()];
+    }
+    return cell;
   }
 
   draw(){
