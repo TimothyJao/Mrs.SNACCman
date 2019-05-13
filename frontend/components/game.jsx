@@ -201,8 +201,8 @@ class Game extends React.Component{
       if(this.player - 1 !== i) this.computeNextMove(ghost);
     });
     this.ghosts.forEach((ghost, i)=>{
-      if(ghost.spawning) ghost.spawning--;
-      if(!ghost.spawning) this.updateEntity(ghost);
+      if(ghost.spawning > 0) ghost.spawning--;
+      if(ghost.spawning === 0) this.updateEntity(ghost);
     });
   }
   updateEntity(entity){
@@ -264,7 +264,7 @@ class Game extends React.Component{
       entity.velocity = [0,-1];
       entity.bufferedVelocity = [0,-1];
     }
-    let velocities = [
+    const velocities = [
       [0,1],
       [0,-1],
       [1,0],
@@ -275,7 +275,7 @@ class Game extends React.Component{
     if (ghost.dead) {
       this.calculateRespawnPath(ghost);
     }else if(this.isSuper){
-      if (ghost.velocity === ghost.bufferedVelocity) this.randomizeMovement(ghost); //move randomly if you are super
+      this.randomizeMovement(ghost); //move randomly if you are super
     }else{
       this.calculateShortestPath(ghost);
     }
@@ -319,11 +319,9 @@ class Game extends React.Component{
         if (this.game.getCellAtPos(this.respawn_location) == this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
-          ghost.velocity = [0,1];
-          ghost.bufferedVelocity = [0,1];
-          ghost.respawn = 3 * FPS;
-          console.log("Respawning: ");
-          console.log(ghost);
+          ghost.velocity = [0,-1];
+          ghost.bufferedVelocity = [0,-1];
+          ghost.spawning = 2 * FPS;
         } 
       }
     });
@@ -387,13 +385,13 @@ class Game extends React.Component{
     }
   }
   inGhostRegion(entity){
- 
-    for (let x = this.ghostRegion[0][0]; x <= this.ghostRegion[1][0]; ++x) {
-      for (let y = this.ghostRegion[0][1]; y <= this.ghostRegion[1][1]; ++y) {
-        if(entity.pos[0] == x && entity.pos[1] ==y) return true;
-      }
-    }
-    return false;
+    const [start_x, start_y] = this.ghostRegion[0];
+    const [end_x, end_y] = this.ghostRegion[1];
+    const [entity_start_x, entity_start_y] = entity.pos;
+    const entityCenter = this.game.wrapPos([entity_start_x + (IMG_SIZE / 2), entity_start_y + (IMG_SIZE / 2)]);
+    return (entityCenter[0] >= start_x && entityCenter[0] <= end_x &&
+      entityCenter[1] >= start_y && entityCenter[1] <= end_y); //center of object is inside the range
+  
   }
 
   draw(){

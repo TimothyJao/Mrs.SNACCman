@@ -5,7 +5,6 @@ export class GameUtil{
   constructor(grid){
   //Expects grid to be a uniformly sized 2D array with coordinates [x][y]
     this.grid = grid;
-    console.log(this.grid);
     this.setupNeighbors();
   }
   setupNeighbors(){
