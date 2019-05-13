@@ -37,4 +37,9 @@ export const IMAGES = {
       down: []
     }
   },
+  ghost:{
+    dead: [],
+    super: [],
+    color: []
+  }
 };

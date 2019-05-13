@@ -23,7 +23,8 @@ class Game extends React.Component{
     this.loading = 3*FPS;
 
     this.snaccman = props.snaccman;
-    // this.ghosts = props.ghosts;
+    this.ghosts = props.ghosts;
+    this.ghosts.forEach(ghost=>{ ghost.bufferedVelocity = ghost.velocity; });
     this.pellets = props.pellets;
     this.game = new GameUtil(props.grid);
 
@@ -134,7 +135,8 @@ class Game extends React.Component{
 
   updatePositions(){
     this.updateEntity(this.snaccman);
-    
+    this.ghosts.forEach(ghost=>this.computeNextMove(ghost));
+    this.ghosts.forEach(ghost=>this.updateEntity(ghost));
   }
   updateEntity(entity){
     //try the buffered velocity, and if it fails, keep moving in the previous direction
@@ -188,6 +190,9 @@ class Game extends React.Component{
   snaccTime(time = 5*FPS){
     this.isSuper = time;
   }
+  computeNextMove(ghost){
+
+  }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
 
@@ -210,6 +215,21 @@ class Game extends React.Component{
         }
       }
     }
+    let killed = false;
+    this.ghosts.forEach(ghost=>{
+      const [ghost_start_x, ghost_start_y] = ghost.pos;
+      const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+      if(distance(center, ghostCenter) < IMG_SIZE){
+        if(ghost.dead){
+          //do nothing, ghost already dead
+        }else if(this.isSuper){
+          ghost.dead = true;
+        }else{
+          if(!killed) this.killSnaccman(); //prevent multikill
+          killed=true;
+        }
+      }
+    });
   }
 
   draw(){
@@ -242,9 +262,7 @@ class Game extends React.Component{
 
     this.drawSnaccman();
 
-    /*for(let i = 0; i < this.ghosts.length; i++){
-      drawGhost(i);
-    }*/
+    this.ghosts.forEach((ghost, idx)=>this.drawGhost(ghost, idx));
 
     //clear the padding for wrapped images
     this.clearPadding();
@@ -382,6 +400,20 @@ class Game extends React.Component{
 
     const img = this.isSuper ? IMAGES.snaccman["super"][direction][imgNumber] : IMAGES.snaccman[direction][imgNumber];
     this.drawSprite(img, x_start, y_start, this.snaccman);
+  }
+  drawGhost(ghost, idx){ //idx = which color ghost
+    const [x_start, y_start] = this.game.getStartPositionForCell(...ghost.pos);
+    let img;
+
+    if (ghost.dead) { //eyeball sprite if dead
+      img = IMAGES.ghost.dead[0];
+    }else if(this.isSuper){ //blue/white flashing ghost if snaccman is super
+      const imgNumber = Math.floor(this.isSuper / SPRITE_DURATION) % IMAGES.ghost.super.length;
+      img = IMAGES.ghost.super[imgNumber];
+    }else{ //get the right color ghost
+      img = IMAGES.ghost.color[idx];
+    }
+    this.drawSprite(img, x_start, y_start, ghost);
   }
 
   drawSprite(img, x, y, entity){
