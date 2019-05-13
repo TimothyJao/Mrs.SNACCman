@@ -7,7 +7,7 @@ PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
 
 import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../../classes/Entity";
 
-import { GameUtil } from "../util/game_util";
+import { GameUtil, distance } from "../util/game_util";
 
 class Game extends React.Component{
   constructor(props){
@@ -54,7 +54,7 @@ class Game extends React.Component{
         document.removeEventListener("keydown", this.handleInput);
         break;
       case 80: //P enables super snacc thiccness mode for testing
-        this.isSuper = 5*FPS;
+        this.snaccTime();
         break;
       case 75: //K kills snaccman for testing
         this.killSnaccman();
@@ -94,9 +94,16 @@ class Game extends React.Component{
     this.updatePositions();
     this.checkCollisions();
     this.draw();
+    if(this.pelletCount === 0){
+      this.win();
+    }
   }
   gameOver(){
     this.draw();
+    clearInterval(this.intervalId);
+  }
+  win(){
+    clearInterval(this.intervalId);
   }
 
   updatePositions(){
@@ -152,16 +159,38 @@ class Game extends React.Component{
     entity.pos = this.game.wrapPos([next_x, next_y]);
     return true;
   }
-
+  snaccTime(time = 5*FPS){
+    this.isSuper = time;
+  }
   checkCollisions(){
-    // this.pellets.forEach((pellet, i)=>{
-    //   if(this.snaccman.collidesWith(pellet, this.grid)){
-    //     console.log("Yum");
-    //     if(pellet.type === BIG_PELLET) this.isSuper = FPS*5;
-    //     delete this.cachedPellets;
-    //     delete this.pellets[i];
-    //   }
-    // });
+    const [start_x, start_y] = this.snaccman.pos;
+    const edges = [
+      this.game.wrapPos([start_x+(IMG_SIZE/2), start_y]), //top
+      this.game.wrapPos([start_x, start_y+(IMG_SIZE/2)]), //left
+      this.game.wrapPos([start_x+(IMG_SIZE/2), start_y+IMG_SIZE]), //bottom
+      this.game.wrapPos([start_x+IMG_SIZE, start_y+(IMG_SIZE/2)]) //right
+    ];
+    for(let i = 0; i < edges.length; i++){
+      const edge = edges[i];
+      const cell = this.game.getCellAtPos(edge);
+      
+      const pellet = this.pellets[cell.x][cell.y];
+      if(pellet){
+        const pellet_pos = [pellet.pos[0]+0.5, pellet.pos[1]+0.5]; //pellet is centered
+        if(pellet.type === BIG_PELLET){
+          if(distance(edge, pellet_pos) < BIG_PELLET_SIZE/PIXEL_SIZE){
+            delete this.pellets[cell.x][cell.y];// = {type: "NOT_A_PELLET", pos: [0,0]};
+            this.snaccTime();
+            break;
+          } 
+        }else if(pellet.type === PELLET){
+          if (distance(edge, pellet_pos) < PELLET_SIZE/PIXEL_SIZE) {
+            delete this.pellets[cell.x][cell.y];// = { type: "NOT_A_PELLET", pos: [0, 0] };
+            break;
+          } 
+        }
+      }
+    }
   }
 
   draw(){
@@ -173,6 +202,7 @@ class Game extends React.Component{
     this.ctx.fillRect(0,0,gameWidth, gameHeight);
     //cache the background after drawing it once so we don't have to look at ~900 cells every frame
     if(!this.cachedBackground){
+      this.ctx.beginPath();
       this.ctx.lineWidth = WALL_STROKE;
       for(let x = 0; x < this.game.getWidth(); x++){
         for(let y = 0; y < this.game.getHeight(); y++){
@@ -181,18 +211,15 @@ class Game extends React.Component{
       }
       this.ctx.stroke();
       this.ctx.lineWidth = 1;
+      this.ctx.closePath();
       this.cachedBackground = this.ctx.getImageData(0,0,gameWidth, gameHeight);
+      
     }else{
       this.ctx.putImageData(this.cachedBackground,0,0);
     }
     
     //Draw pellets first so ghosts can draw over them
-    if(!this.cachedPellets){
-      this.drawPellets();
-      this.cachedPellets = this.ctx.getImageData(0,0,gameWidth, gameHeight);
-    }else{
-      this.ctx.putImageData(this.cachedPellets,0,0);
-    }
+    this.drawPellets();
 
     this.drawSnaccman();
 
@@ -207,16 +234,23 @@ class Game extends React.Component{
   drawLives(){
     const bottom = this.game.GameHeight() - PADDING;
     let text = (this.lives > 0) ? `Lives: ${this.lives}` : "GAME OVER!";
+    if(this.lives > 0 && this.pelletCount){
+      text+= ` LEFT: ${this.pelletCount}`;
+    }
     if(this.isSuper){
       const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
       text += ` SNACC TIME!!! ${SNACC_TIME}`;
     }
-   
+    if(this.lives > 0 && this.pelletCount === 0){
+      text = "WINNER!!!";
+    }
+    this.ctx.beginPath();
     this.ctx.strokeStyle = TEXT_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING, bottom + 25);
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.closePath();
   }
 
   clearPadding(){
@@ -225,6 +259,7 @@ class Game extends React.Component{
     const gameHeight = this.game.GameHeight();
     const pixelSize = PIXEL_SIZE;
     //clear top padding
+    this.ctx.beginPath();
     this.ctx.fillRect(0, 0, gameWidth, padding);
     //clear left padding
     this.ctx.fillRect(0, 0, padding, gameHeight);
@@ -232,6 +267,7 @@ class Game extends React.Component{
     this.ctx.fillRect(0, padding + (pixelSize * this.game.getHeight()), gameWidth, padding);
     //clear right padding
     this.ctx.fillRect(padding + pixelSize * this.game.getWidth(), 0, padding, gameHeight);
+    this.ctx.closePath();
   }
 
   drawCell(x,y){
@@ -317,6 +353,7 @@ class Game extends React.Component{
   }
 
   drawPellets(){
+    this.ctx.beginPath();
     this.pelletCount = 0;
     this.ctx.fillStyle = PELLET_COLOR;
     this.ctx.strokeStyle = PELLET_COLOR;
@@ -324,10 +361,11 @@ class Game extends React.Component{
     this.ctx.fill();
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.closePath();
   }
   
   drawPellet(pellet){
-    if(!pellet) return;
+    if(!pellet || !pellet.type || (pellet.type !== BIG_PELLET && pellet.type!== PELLET)) return;
     this.pelletCount+=1;
     const [x,y] = this.game.getStartPositionForCell(...pellet.pos);
     const offset = (PIXEL_SIZE / 2) - 1;
