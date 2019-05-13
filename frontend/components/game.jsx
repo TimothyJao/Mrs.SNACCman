@@ -19,6 +19,8 @@ class Game extends React.Component{
     this.lives = 3;
     this.pelletCount = 999;
     this.start_position = [12.5, 22];
+    this.respawn_location = [12, 10];
+    this.ghostRegion = [[9,11],[16,15]];
 
     this.player = props.player || 0; //0 = pacman, 1-4 are ghosts
 
@@ -27,8 +29,10 @@ class Game extends React.Component{
 
     this.snaccman = props.snaccman;
     this.ghosts = props.ghosts;
-    this.ghosts.forEach(ghost=>{ ghost.bufferedVelocity = ghost.velocity;
-      ghost.initialPos = ghost.pos });
+    this.ghosts.forEach((ghost,i)=>{ ghost.bufferedVelocity = ghost.velocity;
+      ghost.initialPos = ghost.pos;
+      ghost.spawning = 2*FPS*i;
+    });
     this.pellets = props.pellets;
     this.game = new GameUtil(props.grid);
 
@@ -59,14 +63,14 @@ class Game extends React.Component{
     this.ctx.closePath();
     this.cachedBackground = this.ctx.getImageData(0, 0, this.game.GameWidth(), this.game.GameHeight());
 
-    //don't let ghosts get halfway stuck in starting platform;
-    //FIX MATH LOGIC SO THIS DOESNT HAPPEN!
-    this.game.grid[12][11].right = false;
-    this.game.grid[13][11].left = false;
-    this.game.grid[12][12].right = false;
-    this.game.grid[13][12].left = false;
-    this.game.grid[12][13].right = false;
-    this.game.grid[13][13].left = false;
+    //ghosts can only move up from their starting box
+    for(let x = this.ghostRegion[0][0]; x <= this.ghostRegion[1][0]; ++x){
+      for(let y = this.ghostRegion[0][1]; y <= this.ghostRegion[1][1]; ++y){
+        this.game.grid[x][y].left = false;
+        this.game.grid[x][y].right = false;
+        this.game.grid[x][y].down = false;
+      }
+    }
     //load the image assets, start rendering once they are loaded
     this.game.loadImages(()=>{
       document.addEventListener("keydown", this.handleInput);
@@ -145,10 +149,13 @@ class Game extends React.Component{
     this.snaccman.pos = this.start_position;
     this.snaccman.velocity = [1,0];
     this.snaccman.bufferedVelocity = [1,0];
-    this.ghosts.forEach(ghost=>{
+    this.frame = 0;
+    this.ghosts.forEach((ghost,i)=>{
       ghost.pos = ghost.initialPos;
       ghost.velocity = [0,-1];
       ghost.bufferedVelocity = [0,-1];
+      ghost.spawning = 2 * FPS * i;
+      ghost.dead = false;
     });
     this.isSuper = 0;
     if(this.lives > 0) this.lives--;
@@ -188,12 +195,15 @@ class Game extends React.Component{
   }
 
   updatePositions(){
+    if (this.snaccman.velocity === this.snaccman.bufferedVelocity && this.player !== 0) this.randomizeMovement(this.snaccman);
     this.updateEntity(this.snaccman);
-    if(this.frame % 20 === 0) this.randomizeMovement(); //random movements
     this.ghosts.forEach((ghost, i)=>{
       if(this.player - 1 !== i) this.computeNextMove(ghost);
     });
-    this.ghosts.forEach(ghost=>this.updateEntity(ghost));
+    this.ghosts.forEach((ghost, i)=>{
+      if(ghost.spawning) ghost.spawning--;
+      if(!ghost.spawning) this.updateEntity(ghost);
+    });
   }
   updateEntity(entity){
     //try the buffered velocity, and if it fails, keep moving in the previous direction
@@ -248,22 +258,27 @@ class Game extends React.Component{
     this.isSuper = time;
   }
 
-  randomizeMovement(){
-    const velocities = [
+  randomizeMovement(entity){
+    if(this.frame % 20 !== 0) return;
+    if(this.inGhostRegion(entity)) {
+      entity.velocity = [0,-1];
+      entity.bufferedVelocity = [0,-1];
+    }
+    let velocities = [
       [0,1],
       [0,-1],
       [1,0],
-      [-1,0]
-    ];
-    if(this.player!==0) this.snaccman.bufferedVelocity = velocities[Math.floor(Math.random() * velocities.length)];
-    this.ghosts.forEach((ghost, i)=>{
-      if(this.player - 1 === i) return;
-      //if(ghost.dead || !this.isSuper) return; //only randomize when super
-      ghost.bufferedVelocity = velocities[Math.floor(Math.random()*velocities.length)];
-    });
+      [-1,0]];
+    entity.bufferedVelocity = velocities[Math.floor(Math.random() * velocities.length)];
   }
   computeNextMove(ghost){
-    this.calculateShortestPath(ghost);
+    if (ghost.dead) {
+      this.calculateRespawnPath(ghost);
+    }else if(this.isSuper){
+      if (ghost.velocity === ghost.bufferedVelocity) this.randomizeMovement(ghost); //move randomly if you are super
+    }else{
+      this.calculateShortestPath(ghost);
+    }
   }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
@@ -292,13 +307,24 @@ class Game extends React.Component{
       const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
       if(distance(center, ghostCenter) < IMG_SIZE){
         if(ghost.dead){
-          //do nothing, ghost already dead
+          //nothing, ghost is dead
         }else if(this.isSuper){
           ghost.dead = true;
         }else{
           if(!killed) this.killSnaccman(); //prevent multikill
           killed=true;
         }
+      }
+      if(ghost.dead && distance(ghostCenter, this.respawn_location) < IMG_SIZE){
+        if (this.game.getCellAtPos(this.respawn_location) == this.game.getCellAtPos(ghostCenter)) {
+          ghost.dead = false;
+          ghost.pos = ghost.initialPos;
+          ghost.velocity = [0,1];
+          ghost.bufferedVelocity = [0,1];
+          ghost.respawn = 3 * FPS;
+          console.log("Respawning: ");
+          console.log(ghost);
+        } 
       }
     });
   }
@@ -330,6 +356,44 @@ class Game extends React.Component{
     if(this.game.getCell(ghostCellX, ghostCellY-1) == cell){
       ghost.bufferedVelocity = [0,-1];
     }
+  }
+  calculateRespawnPath(ghost){
+    const [start_x, start_y] = this.respawn_location;
+    const respawnCenter = this.game.wrapPos([start_x + (IMG_SIZE / 2), start_y + (IMG_SIZE / 2)]);
+    const [ghost_start_x, ghost_start_y] = ghost.pos;
+    const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+    const respawnCell = this.game.getCellAtPos(respawnCenter);
+    const ghostCell = this.game.getCellAtPos(ghostCenter);
+    const path = ghost.shortestPathToSnacMan(respawnCell, ghostCell);
+    if(path===undefined) return;
+    let cell = respawnCell;
+    while(path[cell.toString()]!=ghostCell){
+      cell=path[cell.toString()];
+      if(cell === undefined) return;
+    }
+
+    let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
+    if(this.game.getCell(ghostCellX+1, ghostCellY) == cell){
+      ghost.bufferedVelocity = [1,0];
+    }
+    if(this.game.getCell(ghostCellX-1, ghostCellY) == cell){
+      ghost.bufferedVelocity = [-1,0];
+    }
+    if(this.game.getCell(ghostCellX, ghostCellY+1) == cell){
+      ghost.bufferedVelocity = [0,1];
+    }
+    if(this.game.getCell(ghostCellX, ghostCellY-1) == cell){
+      ghost.bufferedVelocity = [0,-1];
+    }
+  }
+  inGhostRegion(entity){
+ 
+    for (let x = this.ghostRegion[0][0]; x <= this.ghostRegion[1][0]; ++x) {
+      for (let y = this.ghostRegion[0][1]; y <= this.ghostRegion[1][1]; ++y) {
+        if(entity.pos[0] == x && entity.pos[1] ==y) return true;
+      }
+    }
+    return false;
   }
 
   draw(){
