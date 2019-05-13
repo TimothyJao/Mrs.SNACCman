@@ -1,4 +1,6 @@
 import {Entity, GHOST} from "./Entity";
+// import {SNACCMAN, PELLET, BIG_PELLET} from "./Entity";
+import { debug } from "util";
 
 class Ghost extends Entity{
     constructor(x, y, type=GHOST, velocity){
@@ -26,51 +28,42 @@ class Ghost extends Entity{
 
     /**setUpVisitedNodes - returns a boolean matrix of valid nodes a ghost can traverse */
     setUpVisitedNodes(grid) {
+        //debugger 
         let visited = grid;
-        for (let i = 0; i < grid.length; i++) {
-            for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].type === 'pellet' || grid[i][j].type === 'big pellet') {
-                    visited[i][j] = false;
-                } else {
-                    visited[i][j] = true;
-                }
-            }
-        }
-        return 1;
+        // for (let i = 0; i < grid.length; i++) {
+        //     for (let j = 0; j < grid[i].length; j++) {
+        //         if (grid[i][j] ===  || grid[i][j] === ) {
+        //             visited[i][j] = false;
+        //         } else {
+        //             visited[i][j] = true;
+        //         }
+        //     }
+        // }
+        return visited;
     }
 
     /* shortestPathToSnacMan - return shortest path coordinates from ghost to snaccman */
-    shortestPathToSnacMan(grid, snaccman, ghost) {
-        let ghostPos = [ghost.x, ghost.y]
-        let snacManPos = [snaccman.x, snaccman.y]
+    shortestPathToSnacMan(snaccman, ghost) {
+        // let ghostPos = [ghost.x, ghost.y]
+        // let snacManPos = [snaccman.x, snaccman.y]
         /* set up valid positions that the ghost can travel to */
-        visited_grid = setUpVisitedNodes(grid);
+        // let visited_grid = this.setUpVisitedNodes(grid);
         /* pred - holds the previous objects the ghost has traveled to */
-        let pred = []
+        // let pred = []
         let queue = [];
-
-         /* modified bfs traversal */
-        queue.push(ghostPos)
+        let visited = [];
+        let path = {};
+        queue.push(ghost)
         while (!queue) {
-            let nextGhostPos = queue.shift();
-            let x = nextGhostPath[0];
-            let y = nextGhostPos[1];
-             for (let i = 0; i < grid[x].length; i++) {
-                /*  if the position has not been visisted -> visit path, and set predecessor path */
-                if ((visited[grid[x][i].x][grid[x][i].y]) === false) {
-                    /* update values for shortest path -> by default we dont explore the X's - ie the grids that the ai should not go through*/
-                    visited[grid[x][i].x][grid[x][i].y] = true;
-                    // pred[grid[x[i].x][grid[x[i].y] = grid[x[x;
-                    // pred[grid[x][i].x][grid[x][i].y].push(grid[x][y]);
-                    let nextToQueue = [grid[x][i].x, grid[x][i].y]
-                    queue.push(nextToQueue);
-                    /* push the predecesor node/object */
-                    pred.push(grid[x][i])
-                    /* if the coordinates match */
-                    if ([grid[x][i].x, grid[x][i].y] === snacManPos) {
-                        return getPredInOrder(pred);
-                    }
-                }
+            let currentGhostPosition =  queue.shift();
+            visited.push(ghost)
+            if (currentGhostPosition == snaccman) {
+               return path; 
+            }
+            let ghostValidPositions =  currentGhostPosition.neighbors;
+            for (let i = 0; i < ghostValidPositions.length; i++) {
+                queue.push(ghostValidPositions[i]);
+                path[ghostValidPositions[i]] = currentGhostPosition;
             }
         }
     }
