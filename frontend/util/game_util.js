@@ -5,6 +5,26 @@ export class GameUtil{
   constructor(grid){
   //Expects grid to be a uniformly sized 2D array with coordinates [x][y]
     this.grid = grid;
+    this.setupNeighbors();
+  }
+  setupNeighbors(){
+    this.grid.forEach((row, x)=>{
+      row.forEach((cell, y)=>{
+        cell.neighbors = [];
+        if(cell.canMoveUp()){
+          cell.neighbors.push(this.getCellAtPos([x, y-1]));
+        }
+        if(cell.canMoveDown()){
+          cell.neighbors.push(this.getCellAtPos([x, y+1]));
+        }
+        if(cell.canMoveLeft()){
+          cell.neighbors.push(this.getCellAtPos([x-1, y]));
+        }
+        if(cell.canMoveRight()){
+          cell.neighbors.push(this.getCellAtPos([x+1, y]));
+        }
+      });
+    });
   }
   //preload images for drawing, callback when completed
   loadImages(callback){
