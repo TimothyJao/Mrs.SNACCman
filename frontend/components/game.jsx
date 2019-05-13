@@ -9,6 +9,7 @@ PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
 import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../../classes/Entity";
 
 import { GameUtil, distance } from "../util/game_util";
+import Ghost from "../../classes/Ghost";
 
 class Game extends React.Component{
   constructor(props){
@@ -18,6 +19,8 @@ class Game extends React.Component{
     this.lives = 3;
     this.pelletCount = 999;
     this.start_position = [12.5, 22];
+
+    this.player = props.player || 0; //0 = pacman, 1-4 are ghosts
 
     this.waiting = true;
     this.loading = 3*FPS;
@@ -51,6 +54,12 @@ class Game extends React.Component{
     document.removeEventListener("keydown", this.handleInput);
   }
   handleInput(e){
+    let entity;
+    if (this.player === 0) {
+      entity = this.snaccman;
+    } else {
+      entity = this.ghosts[this.player - 1];
+    }
     switch(e.keyCode){
       case 13://Enter begins the game
         if(this.waiting){
@@ -76,19 +85,34 @@ class Game extends React.Component{
         break;
       case 38: //arrow up
       case 87: //W
-        this.snaccman.bufferedVelocity = [0,-1];
+        entity.bufferedVelocity = [0,-1];
         break;
       case 37: //arrow left
       case 65: //A
-        this.snaccman.bufferedVelocity = [-1,0];
+        entity.bufferedVelocity = [-1,0];
         break;
       case 40: //arrow down
       case 83: //S
-        this.snaccman.bufferedVelocity = [0,1];
+        entity.bufferedVelocity = [0,1];
         break;
       case 39: //arrow right
       case 68: //D
-        this.snaccman.bufferedVelocity = [1, 0];
+        entity.bufferedVelocity = [1, 0];
+        break;
+      case 49: //1 -> switch to snaccman
+        this.player = 0;
+        break;
+      case 50: //2 -> switch to ghost 1
+        this.player = 1;
+        break;
+      case 51: //3 -> switch to ghost 2
+        this.player = 2;
+        break;
+      case 52: //4 -> switch to ghost 3
+        this.player = 3;
+        break;
+      case 53: //5 -> switch to ghost 4
+        this.player = 4;
         break;
     }
   }
@@ -135,7 +159,7 @@ class Game extends React.Component{
 
   updatePositions(){
     this.updateEntity(this.snaccman);
-    if(this.frame % 20 === 0) this.randomizeGhosts(); //randomize ghost movements
+    if(this.frame % 20 === 0) this.randomizeMovement(); //random movements
     this.ghosts.forEach(ghost=>this.computeNextMove(ghost));
     this.ghosts.forEach(ghost=>this.updateEntity(ghost));
   }
@@ -192,20 +216,22 @@ class Game extends React.Component{
     this.isSuper = time;
   }
 
-  randomizeGhosts(){
+  randomizeMovement(){
     const velocities = [
       [0,1],
       [0,-1],
       [1,0],
       [-1,0]
     ];
-    this.ghosts.forEach(ghost=>{
+    if(this.player!==0) this.snaccman.bufferedVelocity = velocities[Math.floor(Math.random() * velocities.length)];
+    this.ghosts.forEach((ghost, i)=>{
+      if(this.player - 1 === i) return;
       //if(ghost.dead || !this.isSuper) return; //only randomize when super
       ghost.bufferedVelocity = velocities[Math.floor(Math.random()*velocities.length)];
     });
   }
   computeNextMove(ghost){
-
+    console.log(this.calculateShortestPath(ghost));
   }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
@@ -244,6 +270,15 @@ class Game extends React.Component{
         }
       }
     });
+  }
+  calculateShortestPath(ghost){
+    const [start_x, start_y] = this.snaccman.pos;
+    const snaccmanCenter = this.game.wrapPos([start_x + (IMG_SIZE / 2), start_y + (IMG_SIZE / 2)]);
+    const [ghost_start_x, ghost_start_y] = ghost.pos;
+    const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+    const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
+    const ghostCell = this.game.getCellAtPos(ghostCenter);
+    return ghost.shortestPathToSnacMan(this.game.getGrid(), { x: snaccmanCell.x, y: snaccmanCell.y }, { x: ghostCell.x, y: ghostCell.y });
   }
 
   draw(){
@@ -302,6 +337,8 @@ class Game extends React.Component{
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
+
+    
   }
   drawWaiting(){
     const [x,y] = [PADDING/2, this.game.GameHeight() / 2 - PADDING/2];
