@@ -135,6 +135,7 @@ class Game extends React.Component{
 
   updatePositions(){
     this.updateEntity(this.snaccman);
+    if(this.frame % 20 === 0) this.randomizeGhosts(); //randomize ghost movements
     this.ghosts.forEach(ghost=>this.computeNextMove(ghost));
     this.ghosts.forEach(ghost=>this.updateEntity(ghost));
   }
@@ -189,6 +190,19 @@ class Game extends React.Component{
   }
   snaccTime(time = 5*FPS){
     this.isSuper = time;
+  }
+
+  randomizeGhosts(){
+    const velocities = [
+      [0,1],
+      [0,-1],
+      [1,0],
+      [-1,0]
+    ];
+    this.ghosts.forEach(ghost=>{
+      //if(ghost.dead || !this.isSuper) return; //only randomize when super
+      ghost.bufferedVelocity = velocities[Math.floor(Math.random()*velocities.length)];
+    });
   }
   computeNextMove(ghost){
 
@@ -408,7 +422,7 @@ class Game extends React.Component{
     if (ghost.dead) { //eyeball sprite if dead
       img = IMAGES.ghost.dead[0];
     }else if(this.isSuper){ //blue/white flashing ghost if snaccman is super
-      const imgNumber = Math.floor(this.isSuper / SPRITE_DURATION) % IMAGES.ghost.super.length;
+      const imgNumber = Math.floor(this.isSuper / (2*SPRITE_DURATION)) % IMAGES.ghost.super.length;
       img = IMAGES.ghost.super[imgNumber];
     }else{ //get the right color ghost
       img = IMAGES.ghost.color[idx];
