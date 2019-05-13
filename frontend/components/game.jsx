@@ -27,7 +27,8 @@ class Game extends React.Component{
 
     this.snaccman = props.snaccman;
     this.ghosts = props.ghosts;
-    this.ghosts.forEach(ghost=>{ ghost.bufferedVelocity = ghost.velocity; });
+    this.ghosts.forEach(ghost=>{ ghost.bufferedVelocity = ghost.velocity;
+      ghost.initialPos = ghost.pos });
     this.pellets = props.pellets;
     this.game = new GameUtil(props.grid);
 
@@ -42,6 +43,30 @@ class Game extends React.Component{
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.font = FONT;
+    //clear canvas
+    this.ctx.clearRect(0, 0, this.game.GameWidth(), this.game.GameHeight());
+    this.ctx.fillRect(0, 0, this.game.GameWidth(), this.game.GameHeight());
+    //cache the background after drawing it once so we don't have to look at ~900 cells every frame
+    this.ctx.beginPath();
+    this.ctx.lineWidth = WALL_STROKE;
+    for (let x = 0; x < this.game.getWidth(); x++) {
+      for (let y = 0; y < this.game.getHeight(); y++) {
+        this.drawCell(x, y);
+      }
+    }
+    this.ctx.stroke();
+    this.ctx.lineWidth = 1;
+    this.ctx.closePath();
+    this.cachedBackground = this.ctx.getImageData(0, 0, this.game.GameWidth(), this.game.GameHeight());
+
+    //don't let ghosts get halfway stuck in starting platform;
+    //FIX MATH LOGIC SO THIS DOESNT HAPPEN!
+    this.game.grid[12][11].right = false;
+    this.game.grid[13][11].left = false;
+    this.game.grid[12][12].right = false;
+    this.game.grid[13][12].left = false;
+    this.game.grid[12][13].right = false;
+    this.game.grid[13][13].left = false;
     //load the image assets, start rendering once they are loaded
     this.game.loadImages(()=>{
       document.addEventListener("keydown", this.handleInput);
@@ -120,6 +145,11 @@ class Game extends React.Component{
     this.snaccman.pos = this.start_position;
     this.snaccman.velocity = [1,0];
     this.snaccman.bufferedVelocity = [1,0];
+    this.ghosts.forEach(ghost=>{
+      ghost.pos = ghost.initialPos;
+      ghost.velocity = [0,-1];
+      ghost.bufferedVelocity = [0,-1];
+    });
     this.isSuper = 0;
     if(this.lives > 0) this.lives--;
     this.loading = 3*FPS;
@@ -148,7 +178,6 @@ class Game extends React.Component{
     if(this.pelletCount === 0){
       this.win();
     }
-    this.win();
   }
   gameOver(){
     this.draw();
@@ -161,7 +190,9 @@ class Game extends React.Component{
   updatePositions(){
     this.updateEntity(this.snaccman);
     if(this.frame % 20 === 0) this.randomizeMovement(); //random movements
-    this.ghosts.forEach(ghost=>this.computeNextMove(ghost));
+    this.ghosts.forEach((ghost, i)=>{
+      if(this.player - 1 !== i) this.computeNextMove(ghost);
+    });
     this.ghosts.forEach(ghost=>this.updateEntity(ghost));
   }
   updateEntity(entity){
@@ -232,7 +263,7 @@ class Game extends React.Component{
     });
   }
   computeNextMove(ghost){
-    console.log(this.calculateShortestPath(ghost));
+    this.calculateShortestPath(ghost);
   }
   checkCollisions(){
     const [start_x, start_y] = this.snaccman.pos;
@@ -279,11 +310,26 @@ class Game extends React.Component{
     const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
     const path = ghost.shortestPathToSnacMan(snaccmanCell, ghostCell);
+    if(path===undefined) return;
     let cell = snaccmanCell;
     while(path[cell.toString()]!=ghostCell){
       cell=path[cell.toString()];
+      if(cell === undefined) return;
     }
-    return cell;
+
+    let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
+    if(this.game.getCell(ghostCellX+1, ghostCellY) == cell){
+      ghost.bufferedVelocity = [1,0];
+    }
+    if(this.game.getCell(ghostCellX-1, ghostCellY) == cell){
+      ghost.bufferedVelocity = [-1,0];
+    }
+    if(this.game.getCell(ghostCellX, ghostCellY+1) == cell){
+      ghost.bufferedVelocity = [0,1];
+    }
+    if(this.game.getCell(ghostCellX, ghostCellY-1) == cell){
+      ghost.bufferedVelocity = [0,-1];
+    }
   }
 
   draw(){
