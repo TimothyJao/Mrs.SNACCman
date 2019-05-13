@@ -30,6 +30,27 @@ export class GameUtil{
         IMAGES.snaccman["super"][direction].push(img);
       }
     });
+    for(let i = 0; i < 4; i++){
+      total+=1;
+      let img = new Image();
+      img.onload = loaded;
+      img.src = `images/ghost-${i}.png`;
+      IMAGES.ghost.color.push(img);
+    }
+    for (let i = 0; i < 2; i++) {
+      total += 1;
+      let img = new Image();
+      img.onload = loaded;
+      img.src = `images/super-ghost-${i}.png`;
+      IMAGES.ghost.super.push(img);
+    }
+    for (let i = 0; i < 1; i++) {
+      total += 1;
+      let img = new Image();
+      img.onload = loaded;
+      img.src = `images/ghost-dead-${i}.png`;
+      IMAGES.ghost.dead.push(img);
+    }
     //gets called when an image gets loaded
     function loaded() {
       count++;

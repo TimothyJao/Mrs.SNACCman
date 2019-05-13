@@ -2,7 +2,7 @@ import {Entity, GHOST} from "./Entity";
 
 class Ghost extends Entity{
     constructor(x, y, type=GHOST, velocity){
-        super([x, y, type, velocity])
+        super(x, y, type, velocity)
     }
 
     setPos(pos){
