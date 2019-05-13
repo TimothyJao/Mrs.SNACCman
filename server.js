@@ -13,7 +13,8 @@ const cors = require('cors');
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
+/* amount of max players to connect  */
+const connections = [null, null, null, null, null];
 // const express = require("express");
 // const app = express();
 // const db = require("./config/keys").mongoURI;
@@ -31,8 +32,6 @@ function generateRandomId(len) {
     return result;
 }
 
-
-//TODO: read the react component
 app.get('*', function (req, res) {
     res.sendFile(path.join(__dirname, './index.html'));
 });
