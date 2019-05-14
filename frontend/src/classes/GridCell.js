@@ -16,7 +16,7 @@ class GridCell {
 
     canMoveUp() {
         if (this.up !== undefined) return this.up;
-        if ((this.y === 0) || this.grid[this.x][this.wrapY(this.y - 1)] === "X") {
+        if (this.grid[this.x][this.y] === "X" || (this.y === 0) || this.grid[this.x][this.wrapY(this.y - 1)] === "X") {
             this.up = false;
         } else {
             this.up = true;
@@ -26,7 +26,7 @@ class GridCell {
 
     canMoveLeft() {
         if (this.left !== undefined) return this.left;
-        if (((this.x === 0) || this.grid[this.wrapX(this.x - 1)][this.y] === "X") && (this.y != 13 || this.x != 0)) {
+        if (this.grid[this.x][this.y] === "X" ||((this.x === 0) || this.grid[this.wrapX(this.x - 1)][this.y] === "X") && (this.y != 13 || this.x != 0)) {
             this.left = false;
         } else {
             this.left = true;
@@ -36,7 +36,7 @@ class GridCell {
 
     canMoveDown() {
         if (this.down !== undefined) return this.down;
-        if ((this.y === this.grid[0].length - 1) || this.grid[this.x][this.wrapY(this.y + 1)] === "X" || this.grid[this.x][this.wrapY(this.y + 1)] === "G") {
+        if (this.grid[this.x][this.y] === "X" ||(this.y === this.grid[0].length - 1) || this.grid[this.x][this.wrapY(this.y + 1)] === "X" || this.grid[this.x][this.wrapY(this.y + 1)] === "G") {
             this.down = false;
         } else {
             this.down = true;
@@ -46,7 +46,7 @@ class GridCell {
 
     canMoveRight() {
         if (this.right !== undefined) return this.right;
-        if ((this.x === this.grid.length - 1 || this.grid[this.wrapX(this.x + 1)][this.y] === "X") && (this.y != 13 || this.x != this.grid.length - 1)) {
+        if (this.grid[this.x][this.y] === "X" ||(this.x === this.grid.length - 1 || this.grid[this.wrapX(this.x + 1)][this.y] === "X") && (this.y != 13 || this.x != this.grid.length - 1)) {
             this.right = false;
         } else {
             this.right = true;
