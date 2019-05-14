@@ -15,7 +15,7 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.frame = 0;
-    this.gameOver = false;
+    this.finished = false;
     this.isSuper = 0;
     this.score = 0;
     this.delay = 0;
@@ -216,7 +216,7 @@ class Game extends React.Component {
     }
   }
   gameOver() {
-    this.gameOver = true;
+    this.finished = true;
     this.draw();
     clearInterval(this.intervalId);
   }
@@ -224,7 +224,7 @@ class Game extends React.Component {
     this.frame = 0;
     this.score+=this.bonus;
     this.score+=1000*this.lives;
-    this.gameOver = true;
+    this.finished = true;
     clearInterval(this.intervalId);
     this.intervalId = setInterval(this.drawWinScreen, 1000 / FPS);
   }
@@ -502,7 +502,7 @@ class Game extends React.Component {
     this.ctx.fillText(text, PADDING + 1, 33);
     this.ctx.strokeText(text, PADDING + 1, 33);
     this.ctx.closePath();
-    if(!this.gameOver){
+    if(!this.finished){
       const text = `Bonus: ${this.bonus}`;
       this.ctx.beginPath();
       this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
