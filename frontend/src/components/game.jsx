@@ -2,11 +2,9 @@ import React from "react";
 // import io from "socket.io-client"; 
 // const socket = openSocket('http://localhost:5000');
 
-import {
-  BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
-  IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
-  PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL
-} from "../util/constants";
+import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
+IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
+PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL } from "../util/constants";
 
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 
@@ -496,7 +494,7 @@ class Game extends React.Component {
     this.ctx.closePath();
 
   }
-  drawTop() {
+  drawTop(){
     const text = `Score: ${this.score}`;
     this.ctx.beginPath();
     this.ctx.strokeStyle = WALL_COLOR;
@@ -506,15 +504,15 @@ class Game extends React.Component {
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
   }
-  drawBottom() {
+  drawBottom(){
     const bottom = this.game.GameHeight() - PADDING;
     let text = (this.lives > 0) ? `Lives: ${this.lives}` : "GAME OVER!";
     if (this.lives > 0 && this.pelletCount === 0) {
       text = "WINNER!!!";
     }
     let rightText = "";
-    if (this.isSuper && this.lives > 0 && this.pelletCount > 0) {
-      const SNACC_TIME = `${(1 + this.isSuper / FPS)}`.slice(0, 1);
+    if(this.isSuper && this.lives > 0 && this.pelletCount > 0){
+      const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
       rightText = `SNACC TIME!!! ${SNACC_TIME}`;
     }
 
@@ -539,8 +537,8 @@ class Game extends React.Component {
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.textAlign = "center";
-    this.ctx.fillText("Press ENTER to begin", this.game.GameWidth() / 2, y + 37);
-    this.ctx.strokeText("Press ENTER to begin", this.game.GameWidth() / 2, y + 37);
+    this.ctx.fillText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
+    this.ctx.strokeText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
     this.ctx.textAlign = "left";
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
@@ -556,8 +554,8 @@ class Game extends React.Component {
     this.ctx.textAlign = "center";
     const timer = (1 + this.loading / FPS).toString().slice(0, 1);
     const text = (this.lives === 3) ? `Beginning in ${timer}` : `Next round in ${timer}`;
-    this.ctx.fillText(text, this.game.GameWidth() / 2, y + 37);
-    this.ctx.strokeText(text, this.game.GameWidth() / 2, y + 37);
+    this.ctx.fillText(text, this.game.GameWidth()/2, y + 37);
+    this.ctx.strokeText(text, this.game.GameWidth()/2, y + 37);
     this.ctx.textAlign = "left";
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
@@ -732,11 +730,11 @@ class Game extends React.Component {
       ghost.dead = false;
       ghost.pos = ghost.initialPos;
       this.drawGhost(ghost, idx);
-
+    
     });
-    if (!this.addedScoreForLives) {
-      this.score += 1000 * this.lives;
-      this.addedScoreForLives = true;
+    if(!this.addedScoreForLives){
+      this.score += 1000*this.lives;
+      this.addedScoreForLives=true;
     }
     //clear the padding for wrapped images
     this.clearPadding();
