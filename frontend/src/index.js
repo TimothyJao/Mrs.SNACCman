@@ -3,14 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 // import App from './App';
 import * as serviceWorker from './serviceWorker';
-import Game from "./components/game";
-import Grid from "./classes/Grid";
-/* socket io */
-//import socketIOClient from 'socket.io-client';
-import Snaccman from "./classes/Snaccman";
-import Ghost from "./classes/Ghost";
-
-import { SNACCMAN, GHOST } from "./classes/Entity";
+import Root from './components/Root';
+import store from './store/store';
+import configureStore from './store/store';
 
 
 // ReactDOM.render(<App />, document.getElementById('root'));
@@ -21,14 +16,15 @@ import { SNACCMAN, GHOST } from "./classes/Entity";
 // serviceWorker.unregister();
 
 document.addEventListener("DOMContentLoaded", () => {
-    const grid = new Grid();
-    const snaccman = new Snaccman(12.5, 22, SNACCMAN, [1, 0]);
-    const ghosts = [
-        new Ghost(12, 12, GHOST, [0, -1]),
-        new Ghost(12, 13, GHOST, [0, -1]),
-        new Ghost(13, 12, GHOST, [0, -1]),
-        new Ghost(13, 13, GHOST, [0, -1])
-    ];
-    ReactDOM.render(<Game grid={grid.getMoveGrid()} ghosts={ghosts} snaccman={snaccman} pellets={grid.getPelletGrid()} />, document.querySelector("#root"));
+    // const grid = new Grid();
+    // const snaccman = new Snaccman(12.5, 22, SNACCMAN, [1, 0]);
+    // const ghosts = [
+    //     new Ghost(12, 12, GHOST, [0, -1]),
+    //     new Ghost(12, 13, GHOST, [0, -1]),
+    //     new Ghost(13, 12, GHOST, [0, -1]),
+    //     new Ghost(13, 13, GHOST, [0, -1])
+    // ];
+    const store = configureStore();
+    ReactDOM.render(<Root store={store}/>, document.querySelector("#root"));
     serviceWorker.unregister();
 });
