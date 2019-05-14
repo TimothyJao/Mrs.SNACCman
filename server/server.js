@@ -41,13 +41,19 @@ function generateRandomId(len) {
         userNum = 0;
         
         for (let clientId in clients) {
-            let clientSocket = io.sockets.connected[clientId]
+            let clientSocket = io.sockets.connected[clientId];
+
             if (userNum == 0){
+
                 clientSocket.role = "snaccman";
-                clientSocket.emit('connectToRoom', "You are "+clientSocket.role+"! There are " + numClients + " players in your lobby");
+                let message = "You are a " + clientSocket.role + "! There are " + numClients + " players in your lobby";
+                clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum });
+
             } else{
+                
                 clientSocket.role = "ghost";
-                clientSocket.emit('connectToRoom', "You are a " + clientSocket.role + "! There are " + numClients + " players in your lobby");
+                let message = "You are a " + clientSocket.role + "! There are " + numClients + " players in your lobby";
+                clientSocket.emit('connectToRoom', {message: message, playerNumber: userNum});
             }
             userNum++;
         }
@@ -56,7 +62,10 @@ function generateRandomId(len) {
         //     let clientSocket = io.sockets.connected[clientId]
         //     clientSocket.emit('connectToRoom', clientSocket.role)
         // }
-
+        socket.on('getPrompt', () => {
+            socket.emit("sendPlayers", clients)
+        });
+        
         socket.on('disconnect', () => {
             console.log('user disconnected')
         });
