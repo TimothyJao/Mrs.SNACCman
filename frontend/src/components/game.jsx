@@ -2,9 +2,9 @@ import React from "react";
 // import io from "socket.io-client"; 
 // const socket = openSocket('http://localhost:5000');
 
-import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
+import {BACKGROUND_COLOR, WALL_COLOR, WALL_FLASH_COLOR, WALL_FILL_FLASH_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
-PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL } from "../util/constants";
+PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL, ALT_PELLET_COLOR, WALL_FILL_COLOR, TEXT_OUTLINE_COLOR } from "../util/constants";
 
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 
@@ -56,16 +56,14 @@ class Game extends React.Component {
     this.ctx.clearRect(0, 0, this.game.GameWidth(), this.game.GameHeight());
     this.ctx.fillRect(0, 0, this.game.GameWidth(), this.game.GameHeight());
     //cache the background after drawing it once so we don't have to look at ~900 cells every frame
-    this.ctx.beginPath();
     this.ctx.lineWidth = WALL_STROKE;
+    this.ctx.fillStyle = WALL_FILL_COLOR;
     for (let x = 0; x < this.game.getWidth(); x++) {
       for (let y = 0; y < this.game.getHeight(); y++) {
         this.drawCell(x, y);
       }
     }
-    this.ctx.stroke();
     this.ctx.lineWidth = 1;
-    this.ctx.closePath();
     this.cachedBackground = this.ctx.getImageData(0, 0, this.game.GameWidth(), this.game.GameHeight());
 
     //ghosts can only move up from their starting box
@@ -299,6 +297,7 @@ class Game extends React.Component {
     if (this.inGhostRegion(entity)) {
       entity.velocity = [0, -1];
       entity.bufferedVelocity = [0, -1];
+      return;
     }
     const velocities = [
       [0, 1],
@@ -439,16 +438,15 @@ class Game extends React.Component {
     this.ctx.fillRect(0, 0, gameWidth, gameHeight);
     //cache the background after drawing it once so we don't have to look at ~900 cells every frame
     if (!this.cachedBackground) {
-      this.ctx.beginPath();
       this.ctx.lineWidth = WALL_STROKE;
+      this.ctx.fillStyle = WALL_FILL_COLOR;
       for (let x = 0; x < this.game.getWidth(); x++) {
         for (let y = 0; y < this.game.getHeight(); y++) {
           this.drawCell(x, y);
         }
       }
-      this.ctx.stroke();
+      this.ctx.fillStyle = BACKGROUND_COLOR;
       this.ctx.lineWidth = 1;
-      this.ctx.closePath();
       this.cachedBackground = this.ctx.getImageData(0, 0, gameWidth, gameHeight);
 
     } else {
@@ -478,7 +476,7 @@ class Game extends React.Component {
     this.ctx.textAlign = "center";
     this.ctx.font = FONT_SMALL;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(scoreText, center_x, center_y - 5);
     this.ctx.strokeText(scoreText, center_x, center_y - 5);
@@ -491,7 +489,7 @@ class Game extends React.Component {
   drawTop(){
     const text = `Score: ${this.score}`;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING + 1, 33);
     this.ctx.strokeText(text, PADDING + 1, 33);
@@ -511,7 +509,7 @@ class Game extends React.Component {
     }
 
     this.ctx.beginPath();
-    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING + 1, bottom + 32);
     this.ctx.strokeText(text, PADDING + 1, bottom + 32);
@@ -529,7 +527,7 @@ class Game extends React.Component {
     this.ctx.fillRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.strokeRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.fillStyle = TEXT_COLOR;
-    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.textAlign = "center";
     this.ctx.fillText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
     this.ctx.strokeText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
@@ -544,7 +542,7 @@ class Game extends React.Component {
     this.ctx.fillRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.strokeRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.fillStyle = TEXT_COLOR;
-    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.textAlign = "center";
     const timer = (1 + this.loading / FPS).toString().slice(0, 1);
     const text = (this.lives === 3) ? `Beginning in ${timer}` : `Next round in ${timer}`;
@@ -560,6 +558,7 @@ class Game extends React.Component {
     const padding = PADDING;
     const gameHeight = this.game.GameHeight();
     const pixelSize = PIXEL_SIZE;
+    this.ctx.fillStyle = BACKGROUND_COLOR;
     //clear top padding
     this.ctx.beginPath();
     this.ctx.fillRect(0, 0, gameWidth, padding);
@@ -579,20 +578,37 @@ class Game extends React.Component {
     const cell = this.game.getCell(x, y);
 
     if (!cell.canMoveUp()) {
+      this.ctx.beginPath();
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_end, y_start);
+      this.ctx.stroke();
+      this.ctx.closePath();
     }
     if (!cell.canMoveRight()) {
+      this.ctx.beginPath();
       this.ctx.moveTo(x_end, y_start);
       this.ctx.lineTo(x_end, y_end);
+      this.ctx.stroke();
+      this.ctx.closePath();
     }
     if (!cell.canMoveDown()) {
+      this.ctx.beginPath();
       this.ctx.moveTo(x_start, y_end);
       this.ctx.lineTo(x_end, y_end);
+      this.ctx.stroke();
+      this.ctx.closePath();
     }
     if (!cell.canMoveLeft()) {
+      this.ctx.beginPath();
       this.ctx.moveTo(x_start, y_start);
       this.ctx.lineTo(x_start, y_end);
+      this.ctx.stroke();
+      this.ctx.closePath();
+    }
+    if(!cell.canMoveDown() && !cell.canMoveLeft() && !cell.canMoveUp() && !cell.canMoveRight()){
+      this.ctx.beginPath();
+      this.ctx.fillRect(x_start, y_start, x_end-x_start+2, y_end - y_start+2);
+      this.ctx.closePath();
     }
   }
 
@@ -669,30 +685,42 @@ class Game extends React.Component {
   }
 
   drawPellets() {
-    this.ctx.beginPath();
+    
     this.pelletCount = 0;
     this.ctx.fillStyle = PELLET_COLOR;
     this.ctx.strokeStyle = PELLET_COLOR;
     this.pellets.forEach(pelletRow => pelletRow.forEach(pellet => this.drawPellet(pellet)));
-    this.ctx.fill();
+
+    this.ctx.fillStyle = (this.frame / (4 * SPRITE_DURATION) % 2 < 1 ) ? PELLET_COLOR : ALT_PELLET_COLOR;
+    this.pellets.forEach(pelletRow => pelletRow.forEach(pellet => this.drawBigPellet(pellet)));
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
-    this.ctx.closePath();
+
   }
 
   drawPellet(pellet) {
-    if (!pellet || !pellet.type || (pellet.type !== BIG_PELLET && pellet.type !== PELLET)) return;
+    if (!pellet || !pellet.type || (pellet.type !== PELLET)) return;
     this.pelletCount += 1;
     const [x, y] = this.game.getStartPositionForCell(...pellet.pos);
     const offset = (PIXEL_SIZE / 2) - 1;
+    this.ctx.beginPath();
     this.ctx.moveTo(x + offset, y + offset);
-    if (pellet.type === BIG_PELLET) {
-      this.ctx.arc(x + offset, y + offset, BIG_PELLET_SIZE, 0, 2 * Math.PI);
-    } else if (pellet.type === PELLET) {
-      this.ctx.arc(x + offset, y + offset, PELLET_SIZE, 0, 2 * Math.PI);
-    }
+    this.ctx.arc(x + offset, y + offset, PELLET_SIZE, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.closePath();
+  
   }
-
+  drawBigPellet(pellet){
+    if (!pellet || !pellet.type || (pellet.type !== BIG_PELLET)) return;
+    this.pelletCount += 1;
+    const [x, y] = this.game.getStartPositionForCell(...pellet.pos);
+    const offset = (PIXEL_SIZE / 2) - 1;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + offset, y + offset);
+    this.ctx.arc(x + offset, y + offset, BIG_PELLET_SIZE, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.closePath();
+  }
   drawWinScreen() {
     this.frame++;
     if (this.frame > 1.25 * FPS) {
@@ -702,21 +730,20 @@ class Game extends React.Component {
     //clear canvas
     const gameWidth = this.game.GameWidth();
     const gameHeight = this.game.GameHeight();
+    this.ctx.fillStyle = BACKGROUND_COLOR;
 
     this.ctx.clearRect(0, 0, gameWidth, gameHeight);
     this.ctx.fillRect(0, 0, gameWidth, gameHeight);
     //cache the background after drawing it once so we don't have to look at ~900 cells every frame
-    this.ctx.beginPath();
     this.ctx.lineWidth = WALL_STROKE;
-    this.ctx.strokeStyle = (this.frame * 2 % FPS < FPS / 2) ? TEXT_COLOR : WALL_COLOR;
+    this.ctx.strokeStyle = (this.frame * 2 % FPS < FPS / 2) ? WALL_FLASH_COLOR : WALL_COLOR;
+    this.ctx.fillStyle = (this.frame * 2 % FPS < FPS / 2) ? WALL_FILL_FLASH_COLOR : WALL_FILL_COLOR;
     for (let x = 0; x < this.game.getWidth(); x++) {
       for (let y = 0; y < this.game.getHeight(); y++) {
         this.drawCell(x, y);
       }
     }
-    this.ctx.stroke();
     this.ctx.lineWidth = 1;
-    this.ctx.closePath();
     this.drawSnaccman();
     this.isSuper = false;
 
