@@ -1,8 +1,8 @@
 class GridCell {
     constructor(grid, position) {
-        this.grid = grid,
-            this.x = position[0],
-            this.y = position[1];
+        this.grid = grid;
+        this.x = position[0];
+        this.y = position[1];
     }
     wrapX(x){
         return ((x % this.grid.length) %this.grid.length);

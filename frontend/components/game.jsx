@@ -4,7 +4,7 @@ import React from "react";
 
 import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
-PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
+PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL } from "../util/constants";
 
 import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../classes/Entity";
 
@@ -469,6 +469,7 @@ class Game extends React.Component{
 
     //clear the padding for wrapped images
     this.clearPadding();
+    this.drawTop();
     this.drawBottom();
   }
   drawScorePopup(){
@@ -480,18 +481,27 @@ class Game extends React.Component{
     center_x+=PADDING;
     center_y+=PADDING;
     this.ctx.textAlign = "center";
-    this.ctx.font = "20px monospace";
+    this.ctx.font = FONT_SMALL;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(scoreText, center_x, center_y - 5);
     this.ctx.strokeText(scoreText, center_x, center_y - 5);
-    this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.font = FONT;
     this.ctx.textAlign = "left";
     this.ctx.closePath();
 
+  }
+  drawTop(){
+    const text = `Score: ${this.score}`;
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.fillText(text, PADDING + 1, 33);
+    this.ctx.strokeText(text, PADDING + 1, 33);
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.closePath();
   }
   drawBottom(){
     const bottom = this.game.GameHeight() - PADDING;
@@ -499,22 +509,23 @@ class Game extends React.Component{
     if (this.lives > 0 && this.pelletCount === 0) {
       text = "WINNER!!!";
     }
-    text+= ` Score: ${this.score}`;
-
+    let rightText = "";
     if(this.isSuper && this.lives > 0 && this.pelletCount > 0){
       const SNACC_TIME = `${(1 + this.isSuper/FPS)}`.slice(0,1);
-      text += ` SNACC TIME!!! ${SNACC_TIME}`;
+      rightText = `SNACC TIME!!! ${SNACC_TIME}`;
     }
     
     this.ctx.beginPath();
-    this.ctx.strokeStyle = TEXT_COLOR;
-    this.ctx.fillStyle = TEXT_COLOR;
-    this.ctx.fillText(text, PADDING, bottom + 25);
     this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.fillText(text, PADDING + 1, bottom + 32);
+    this.ctx.strokeText(text, PADDING + 1, bottom + 32);
+    this.ctx.textAlign = "right";
+    this.ctx.fillText(rightText, this.game.GameWidth() - PADDING - 1, bottom + 32);
+    this.ctx.strokeText(rightText, this.game.GameWidth() - PADDING - 1, bottom + 32);
+    this.ctx.textAlign = "left";
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
-
-    
   }
   drawWaiting(){
     const [x,y] = [PADDING/2, this.game.GameHeight() / 2 - PADDING/2];
@@ -523,10 +534,11 @@ class Game extends React.Component{
     this.ctx.fillRect(x,y,this.game.GameWidth()-(PADDING),50);
     this.ctx.strokeRect(x,y,this.game.GameWidth()-(PADDING),50);
     this.ctx.fillStyle = TEXT_COLOR;
-    this.ctx.textAlign = "center";
-    this.ctx.fillText("Press ENTER to begin", this.game.GameWidth()/2, y+30);
-    this.ctx.textAlign = "left";
     this.ctx.strokeStyle = WALL_COLOR;
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
+    this.ctx.strokeText("Press ENTER to begin", this.game.GameWidth()/2, y+37);
+    this.ctx.textAlign = "left";
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
   }
@@ -537,12 +549,13 @@ class Game extends React.Component{
     this.ctx.fillRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.strokeRect(x, y, this.game.GameWidth() - (PADDING), 50);
     this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.textAlign = "center";
     const timer = (1 + this.loading / FPS).toString().slice(0, 1);
     const text = (this.lives === 3) ? `Beginning in ${timer}` : `Next round in ${timer}`;
-    this.ctx.fillText(text, this.game.GameWidth()/2, y + 30);
+    this.ctx.fillText(text, this.game.GameWidth()/2, y + 37);
+    this.ctx.strokeText(text, this.game.GameWidth()/2, y + 37);
     this.ctx.textAlign = "left";
-    this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
   }
@@ -709,12 +722,22 @@ class Game extends React.Component{
     this.ctx.stroke();
     this.ctx.lineWidth = 1;
     this.ctx.closePath();
-    // this.drawSnaccman();
+    this.drawSnaccman();
+    this.isSuper = false;
 
-    // this.ghosts.forEach((ghost, idx) => this.drawGhost(ghost, idx));
-
+    this.ghosts.forEach((ghost, idx) => {
+      ghost.dead = false;
+      ghost.pos = ghost.initialPos;
+      this.drawGhost(ghost, idx);
+    
+    });
+    if(!this.addedScoreForLives){
+      this.score += 1000*this.lives;
+      this.addedScoreForLives=true;
+    }
     //clear the padding for wrapped images
     this.clearPadding();
+    this.drawTop();
     this.drawBottom();
   }
 
