@@ -224,7 +224,7 @@ class Game extends React.Component{
   }
 
   updatePositions(){
-    if (this.snaccman.velocity === this.snaccman.bufferedVelocity && this.player !== 0) this.randomizeMovement(this.snaccman);
+    if (this.player !== 0) this.randomizeMovement(this.snaccman);
     this.updateEntity(this.snaccman);
     this.ghosts.forEach((ghost, i)=>{
       if(this.player - 1 !== i) this.computeNextMove(ghost);
