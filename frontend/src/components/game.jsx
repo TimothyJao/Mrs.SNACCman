@@ -8,7 +8,7 @@ PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL } from "../util/constants
 
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 
-import { GameUtil, distance } from "../util/game_util";
+import { GameUtil, distance, shortestPath } from "../util/game_util";
 // import Ghost from "../classes/Ghost";
 
 class Game extends React.Component {
@@ -375,13 +375,10 @@ class Game extends React.Component {
     const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
     const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
-    const path = ghost.shortestPathToSnacMan(snaccmanCell, ghostCell);
+    const path = shortestPath(snaccmanCell, ghostCell);
+
     if (path === undefined) return;
-    let cell = snaccmanCell;
-    while (path[cell.toString()] != ghostCell) {
-      cell = path[cell.toString()];
-      if (cell === undefined) return;
-    }
+    const cell = path[ghostCell.toString()];
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
     if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {
@@ -404,13 +401,10 @@ class Game extends React.Component {
     const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
     const respawnCell = this.game.getCellAtPos(respawnCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
-    const path = ghost.shortestPathToSnacMan(respawnCell, ghostCell);
+    const path = shortestPath(respawnCell, ghostCell);
+
     if (path === undefined) return;
-    let cell = respawnCell;
-    while (path[cell.toString()] != ghostCell) {
-      cell = path[cell.toString()];
-      if (cell === undefined) return;
-    }
+    const cell = path[ghostCell.toString()];
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
     if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {

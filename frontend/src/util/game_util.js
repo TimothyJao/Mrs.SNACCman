@@ -169,3 +169,26 @@ export const distance = (p1, p2)=>{
   const dy = p2[1] - p1[1];
   return Math.sqrt(dx * dx + dy * dy);
 };
+
+
+/* shortestPath - return shortest path coordinates from source to target cell */
+export const shortestPath = (source, target) => {
+  const queue = [];
+  const visited = [];
+  const path = {};
+  queue.push(source);
+  while (queue.length > 0) {
+    const currentPosition = queue.shift();
+    visited.push(currentPosition);
+    if (currentPosition == target) {
+      return path;
+    }
+    const neighbors = currentPosition.neighbors;
+    for (let i = 0; i < neighbors.length; i++) {
+      if (visited.includes(neighbors[i]) === false) {
+        queue.push(neighbors[i]);
+        path[neighbors[i].toString()] = currentPosition;
+      }
+    }
+  }
+}
