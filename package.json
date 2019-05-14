@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
-    "webpack": "webpack --watch --mode=development"
+    "webpack": "webpack --watch --mode=development",
+    "frontend": "npm start --prefix frontend"
   },
   "repository": {
     "type": "git",
@@ -39,8 +40,7 @@
     "redux": "^4.0.1",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
-    "validator": "^10.11.0",
-    "webpack": "^4.31.0"
+    "validator": "^10.11.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.0",
