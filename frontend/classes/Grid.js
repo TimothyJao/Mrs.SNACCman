@@ -1,5 +1,5 @@
 import GridCell from "./GridCell";
-import {transposeGrid} from "../frontend/util/game_util";
+import {transposeGrid} from "../util/game_util";
 import {Entity, BIG_PELLET, PELLET} from "./Entity";
 
 const P = "P";

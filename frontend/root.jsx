@@ -1,13 +1,13 @@
 import ReactDOM from "react-dom";
 import React from "react";
 import Game from "./components/game";
-import Grid from "../classes/Grid";
+import Grid from "./classes/Grid";
 /* socket io */
 //import socketIOClient from 'socket.io-client';
-import Snaccman from "../classes/Snaccman";
-import Ghost from "../classes/Ghost";
+import Snaccman from "./classes/Snaccman";
+import Ghost from "./classes/Ghost";
 
-import { Entity, SNACCMAN, BIG_PELLET, PELLET, GHOST} from "../classes/Entity";
+import { Entity, SNACCMAN, BIG_PELLET, PELLET, GHOST} from "./classes/Entity";
 
 document.addEventListener("DOMContentLoaded",()=>{
   const grid = new Grid();

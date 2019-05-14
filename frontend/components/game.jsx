@@ -6,10 +6,10 @@ import {BACKGROUND_COLOR, WALL_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SP
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
 PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE } from "../util/constants";
 
-import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../../classes/Entity";
+import {BIG_PELLET, PELLET, SNACCMAN, GHOST} from "../classes/Entity";
 
 import { GameUtil, distance } from "../util/game_util";
-import Ghost from "../../classes/Ghost";
+// import Ghost from "../classes/Ghost";
 
 class Game extends React.Component{
   constructor(props){
