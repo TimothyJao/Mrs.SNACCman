@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //     new Ghost(13, 12, GHOST, [0, -1]),
     //     new Ghost(13, 13, GHOST, [0, -1])
     // ];
-    const store = configureStore();
+    const store = configureStore({});
     ReactDOM.render(<Root store={store}/>, document.querySelector("#root"));
     serviceWorker.unregister();
 });

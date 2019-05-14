@@ -2,7 +2,7 @@ import React from 'react';
 import {Switch, Route} from 'react-router-dom';
 import Game from './game';
 import Grid from "../classes/Grid";
-
+import Lobby from "./Lobby";
 import Snaccman from "../classes/Snaccman";
 import Ghost from "../classes/Ghost";
 import {GHOST, SNACCMAN} from "../classes/Entity";
@@ -18,8 +18,10 @@ const App = () => {
             new Ghost(13, 13, GHOST, [0, -1])
         ];
         return (
-            <Switch>
             
+            <Switch>
+                <Route exact path="/" component={Lobby}/>
+
                 <Route exact path="/game" render={() => <Game grid={grid.getMoveGrid()} ghosts={ghosts} snaccman={snaccman} pellets={grid.getPelletGrid()} />}/>
             </Switch>
         );
