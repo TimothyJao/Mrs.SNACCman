@@ -37,27 +37,29 @@ function generateRandomId(len) {
         //Send this event to everyone in the room.
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
         console.log('room-' + roomno);
+
         userNum = 0;
+        
         for (let clientId in clients) {
             let clientSocket = io.sockets.connected[clientId]
             if (userNum == 0){
                 clientSocket.role = "snaccman";
-                clientSocket.emit('connectToRoom', "You are "+clientSocket.role+"! There are " + numClients + " players with you");
+                clientSocket.emit('connectToRoom', "You are "+clientSocket.role+"! There are " + numClients + " players in your lobby");
             } else{
                 clientSocket.role = "ghost";
-                clientSocket.emit('connectToRoom', "You are a "+clientSocket.role+"! There are " + numClients + " players with you");
+                clientSocket.emit('connectToRoom', "You are a " + clientSocket.role + "! There are " + numClients + " players in your lobby");
             }
             userNum++;
         }
 
-        for (let clientId in clients) {
-            let clientSocket = io.sockets.connected[clientId]
-            clientSocket.emit('connectToRoom', clientSocket.role)
-        }
+        // for (let clientId in clients) {
+        //     let clientSocket = io.sockets.connected[clientId]
+        //     clientSocket.emit('connectToRoom', clientSocket.role)
+        // }
 
-        // client.on('disconnect', () => {
-        //     console.log('user disconnected')
-        // })
+        socket.on('disconnect', () => {
+            console.log('user disconnected')
+        });
 
        //io.sockets.in("room-" + roomno).emit('connectToRoom', "You are in room no. " + roomno + ". You are user #" + Object.values(clients));
     })
