@@ -15,9 +15,11 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.frame = 0;
+    this.gameOver = false;
     this.isSuper = 0;
     this.score = 0;
     this.delay = 0;
+    this.bonus = 3000;
     this.multiplier = 1;
     this.lives = 3;
     this.pelletCount = 999; // Needs to be > 1, gets reset when pellets are drawn
@@ -193,6 +195,7 @@ class Game extends React.Component {
     //display things if there isn't a delay
     if (!this.delay) {
       this.display = [];
+      if(this.frame % FPS === 0) this.bonus -= 10;
       if (this.isSuper) {
         this.isSuper--;
         if (this.isSuper === 0) {
@@ -213,11 +216,15 @@ class Game extends React.Component {
     }
   }
   gameOver() {
+    this.gameOver = true;
     this.draw();
     clearInterval(this.intervalId);
   }
   win() {
     this.frame = 0;
+    this.score+=this.bonus;
+    this.score+=1000*this.lives;
+    this.gameOver = true;
     clearInterval(this.intervalId);
     this.intervalId = setInterval(this.drawWinScreen, 1000 / FPS);
   }
@@ -240,6 +247,7 @@ class Game extends React.Component {
     });
   }
   updateEntity(entity) {
+    if(this.isSuper && this.inGhostRegion(entity)) return; //don't move respawned ghosts when super
     //try the buffered velocity, and if it fails, keep moving in the previous direction
     entity.previousVelocity = entity.velocity;
     entity.velocity = entity.bufferedVelocity;
@@ -493,8 +501,18 @@ class Game extends React.Component {
     this.ctx.fillStyle = TEXT_COLOR;
     this.ctx.fillText(text, PADDING + 1, 33);
     this.ctx.strokeText(text, PADDING + 1, 33);
-    this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
+    if(!this.gameOver){
+      const text = `Bonus: ${this.bonus}`;
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
+      this.ctx.fillStyle = TEXT_COLOR;
+      this.ctx.textAlign = "right";
+      this.ctx.fillText(text, this.game.GameWidth() - PADDING - 1, 33);
+      this.ctx.strokeText(text, this.game.GameWidth() - PADDING - 1, 33);
+      this.ctx.textAlign = "left";
+    }
+    this.ctx.fillStyle = BACKGROUND_COLOR;
   }
   drawBottom(){
     const bottom = this.game.GameHeight() - PADDING;
@@ -753,10 +771,6 @@ class Game extends React.Component {
       this.drawGhost(ghost, idx);
     
     });
-    if(!this.addedScoreForLives){
-      this.score += 1000*this.lives;
-      this.addedScoreForLives=true;
-    }
     //clear the padding for wrapped images
     this.clearPadding();
     this.drawTop();
