@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import {BACKGROUND_COLOR, WALL_COLOR, WALL_FLASH_COLOR, WALL_FILL_FLASH_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
 PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL, ALT_PELLET_COLOR, WALL_FILL_COLOR, TEXT_OUTLINE_COLOR } from "../util/constants";
-
+import {url} from './Lobby'
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 import Grid from "../classes/Grid";
 import Ghost from "../classes/Ghost";
@@ -23,7 +23,7 @@ class Game extends React.Component {
     super(props);
     this.setupNewGame();
     this.state = {
-      endpoint: "http://localhost:5000"
+      endpoint: url
     };
   }
 

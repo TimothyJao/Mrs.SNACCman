@@ -3,7 +3,7 @@ import openSocket from 'socket.io-client';
 import {withRouter} from 'react-router-dom';
 const production = 'https://mrs-snaccman.herokuapp.com:' + process.env.PORT
 const development = 'http://localhost:5000/';
-const url = (process.env.NODE_ENV ? production : development);
+export const url = (process.env.NODE_ENV ? production : development);
 export const socket = openSocket(url);
 
 class Lobby extends React.Component {
