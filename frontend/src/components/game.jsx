@@ -77,8 +77,15 @@ class Game extends React.Component {
     if(this.props.location && this.props.location.state && this.props.location.state.playerNumber) this.currentPlayer = this.props.location.state.playerNumber;
     this.numberOfPlayers = this.props.numberOfPlayers || 1;
     if(this.props.location && this.props.location.state && this.props.location.state.players) this.numberOfPlayers = this.props.location.state.players.length;
-    this.waiting = false;
-    this.loading = 5 * FPS;
+    
+    if(this.numberOfPlayers === 1){
+      this.waiting = true;
+      this.loading = 3*FPS;
+    }else{
+      this.waiting = false;
+      this.loading = 5 * FPS;
+    }
+
     this.snaccman = new Snaccman(...this.startPosition, SNACCMAN, RIGHT);
     this.ghosts = [
       new Ghost(12, 12, GHOST, UP),
@@ -157,12 +164,15 @@ class Game extends React.Component {
       entity = this.ghosts[this.currentPlayer - 1];
     }
     switch (e.keyCode) {
-      // case 13://Enter begins the game
-      //   // if (this.waiting) {
-      //   //   this.loading = 3 * FPS;
-      //   //   this.waiting = false;
-      //   // }
-      //   break;
+        case 13://Enter begins the game
+        if(this.numberOfPlayers !== 1) return;
+        if (this.waiting) {
+          this.loading = 3 * FPS;
+          this.waiting = false;
+        }else if(this.loading > 0){
+          this.loading = 0;
+        }
+        break;
       // case 80: //P enables super snacc thiccness mode for testing
       //   this.snaccTime();
       //   break;
