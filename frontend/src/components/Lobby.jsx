@@ -40,7 +40,7 @@ class Lobby extends React.Component {
 
         return (
             <div>
-                <h1 style={{color:'white'}}> Welcome </h1>
+                <h1 className="welcome" style={{color:'white'}}> Mrs. Snaccman </h1>
                 <h1 style={{ color: 'white' }}> {this.state.message} </h1>
                 {startButton}
             </div>
