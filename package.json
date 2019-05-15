@@ -11,6 +11,10 @@
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend",
     "postinstall": "webpack"
   },
+  "engines": {
+    "node": "10.13.0",
+    "npm": "6.9.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TimothyJao/Mrs.SNACCman.git"
