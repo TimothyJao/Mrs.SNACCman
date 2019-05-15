@@ -23,6 +23,22 @@ class Game extends React.Component {
     super(props);
     this.setupNewGame();
   }
+  
+  receiveData(data) {
+    const { frame, entity } = data;
+    console.log("Frame: ", frame);
+    console.log("Entity: ", entity);
+  }
+  sendData() {
+    let entity;
+    if (currentPlayer == 0) {
+      entity = this.snaccman;
+    } else {
+      entity = this.ghosts[currentPlayer - 1];
+    }
+    data = { frame: this.frame, entity };
+    console.log(data); // SEND THIS DATA TO THE OTHER PLAYERS
+  }
 
   setupNewGame(){
     //initialize new game variables to default states
