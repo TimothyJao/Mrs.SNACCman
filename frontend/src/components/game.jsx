@@ -28,9 +28,9 @@ class Game extends React.Component {
   }
 
   receiveData(data) {
-    const { frame, entity } = data;
-    console.log("Frame: ", frame);
-    console.log("Entity: ", entity);
+    // const { frame, entity } = data;
+    // console.log("Frame: ", frame);
+    // console.log("Entity: ", entity);
     socket.on('getPlayerData', (data) => {
       return {frame: data.frame,
       entity: data.entity}
