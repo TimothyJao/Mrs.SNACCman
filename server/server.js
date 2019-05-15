@@ -76,7 +76,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
         /* should return a pojo of a player   */
         socket.on('getPlayer', (data) => {
             // want to dispatch all changes to all players
-            socket.to('game-1').emit('getPlayerData', { frame: data.frame, entity: data.entity})
+            socket.to('game-1').emit('getPlayerData', { frame: data.frame, entity: data.entity, player: data.player})
         });
 
         /* should return a pojo of all players */
