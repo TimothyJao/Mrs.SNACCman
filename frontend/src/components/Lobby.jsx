@@ -36,7 +36,7 @@ class Lobby extends React.Component {
 
     render() {
    
-        let startButton = this.state.playerNumber > 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
+        let startButton = this.state.playerNumber == 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
 
         return (
             <div>

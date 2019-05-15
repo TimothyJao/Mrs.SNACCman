@@ -289,14 +289,14 @@ class Game extends React.Component {
     //if (this.currentPlayer !== 0) this.randomizeMovement(this.snaccman);
     this.updateEntity(this.snaccman);
     this.ghosts.forEach((ghost, i) => {
-      if (this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
+      if (ghost.dead || this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
       if (ghost.spawning > 0) ghost.spawning--;
       if (ghost.spawning === 0 && (!this.isSuper || ghost.dead)) this.updateEntity(ghost);
       //only move ghosts half speed when in snacctime
       if (ghost.spawning === 0 && !ghost.dead && this.isSuper && this.frame % 2 === 0) this.updateEntity(ghost);
       //move ghost double speed when dead
       if (ghost.dead) {
-        if (this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
+        if (ghost.dead || this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
         if (ghost.spawning > 0) ghost.spawning--;
         if (ghost.spawning === 0) this.updateEntity(ghost);
       }
@@ -372,7 +372,7 @@ class Game extends React.Component {
     entity.bufferedVelocity = velocities[Math.floor(random(this.frame*entity.pos[0]) * velocities.length)];
   }
   computeNextMove(ghost) {
-    if(!ghost.ai) return;
+    if(!ghost.ai && !ghost.dead) return;
     if (ghost.dead) {
       this.calculateRespawnPath(ghost);
     } else if (this.isSuper) {
