@@ -17,9 +17,9 @@ In Mrs. Snaccman, we plan to add multiplayer functionalities to make the game mo
 
 #### MVP Features
 
-- [ ] Create a perfect clone of original Pacman: We can't have the same dimensions and animations but we will try our best to have the gameplay exactly the same
+- [X] Create a perfect clone of original Pacman: We can't have the same dimensions and animations but we will try our best to have the gameplay exactly the same
 
-- [ ] Implement multiplayer: Add multiplayer to our clone. This multiplayer will allow users to play as either Snaccman or the ghosts chasing her.
+- [X] Implement multiplayer: Add multiplayer to our clone. This multiplayer will allow users to play as either Snaccman or the ghosts chasing her.
 
 - [ ] Add scores and statistics: Will have statistics be binded to a user's account. Leaderboards will contain the top ranked players in specific categories.
 
@@ -64,21 +64,21 @@ Game.js: Handles all the game logic and rendering
 ### Implementation Timeline
 #### Day 1:
 
-- [ ] Build a grid and walls that Snaccman can transverse
-- [ ] Start User Authentication
+- [X] Build a grid and walls that Snaccman can transverse
+- [X] Start User Authentication
 
 #### Day 2:
-- [ ] Add moving sprites and basic game logic
-- [ ] Complete User Authentication
+- [X] Add moving sprites and basic game logic
+- [X] Complete User Authentication
 
 #### Day 3:
 - [ ] Finish clone and integrate with User Authentication
-- [ ] Start adding multiplayer functionalities
+- [X] Start adding multiplayer functionalities
 
 #### Day 4:
-- [ ] Finish adding multiplayer
+- [X] Finish adding multiplayer
 - [ ] Style website
-- [ ] Start lobby
+- [X] Start lobby
 
 #### Day 5: 
-- [ ] Finish lobby
+- [X] Finish lobby
