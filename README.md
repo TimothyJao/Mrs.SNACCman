@@ -34,7 +34,7 @@ INSERT PICTURE OF LOBBY HERE
 
 Upon creating or joining a lobby, the user will be automatically assigned as a ghost and can move over as Snaccman unless there is already someone who claimed it. A start button will be at the bottom that the creator of the room can click to start the game.
 
-<img src="./frontend/public/images/game-img.png" align="center"/>
+INSERT PICTURE OF START HERE
 
 The grid will be rendered and the game will be started after a short countdown. Game will be played until either snaccman clears the level or loses all her lives.
 
