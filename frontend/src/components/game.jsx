@@ -27,24 +27,11 @@ class Game extends React.Component {
     };
   }
 
-  // receiveData(data) {
-  //   // const { frame, entity } = data;
-  //   // console.log("Frame: ", frame);
-  //   // console.log("Entity: ", entity);
-  //   socket.on('getPlayerData', (data) => {
-  //     return {frame: data.frame,
-  //     entity: data.entity}
-  //   });
-  // } 
-
-  componentDidMount(){
-    socket.on('getPlayerData', (data) => {
-      return {
-        frame: data.frame,
-        entity: data.entity
-      }
-    });
-  }
+  receiveData(data) {
+    const { frame, entity } = data;
+    console.log("Frame: ", frame);
+    console.log("Entity: ", entity);
+  } 
 
   sendData() {
     let entity;
@@ -132,6 +119,10 @@ class Game extends React.Component {
     this.game.loadImages(() => {
       document.addEventListener("keydown", this.handleInput);
       this.intervalId = setInterval(this.nextFrame, 1000 / FPS);
+    });
+
+    socket.on('getPlayerData', (data) => {
+      this.receiveData(data)
     });
   }
   componentWillUnmount() {

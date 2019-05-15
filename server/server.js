@@ -56,11 +56,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
         socket.on('getPrompt', () => {
             io.in('room-' + roomno).emit("sendPlayers", clients)
-            debugger
             for (let clientId in clients) {
                 let clientSocket = io.sockets.connected[clientId];
                 clientSocket.leave('room-1')
                 clientSocket.join('game-1')
+                console.log("You are joining this game")
             }
         });
 
@@ -76,7 +76,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
         /* should return a pojo of a player   */
         socket.on('getPlayer', (data) => {
             // want to dispatch all changes to all players
-            socket.emit('getPlayerData', { frame: data.frame, entity: data.entity})
+            socket.to('game-1').emit('getPlayerData', { frame: data.frame, entity: data.entity})
         });
 
         /* should return a pojo of all players */
