@@ -1,9 +1,8 @@
 import React from 'react';
 import socketIOClient from 'socket.io-client';
-import { emit } from 'cluster';
 import openSocket from 'socket.io-client';
-import {Link} from 'react-router-dom';
-// const socket = openSocket('http://localhost:5000');
+import {withRouter} from 'react-router-dom';
+const socket = openSocket('http://localhost:5000');
 
 class Lobby extends React.Component {
     constructor(props) {
@@ -11,29 +10,30 @@ class Lobby extends React.Component {
         this.state = {
             message: "",
             playerNumber: -1,
+            players: "",
             endpoint: "http://localhost:5000"
         };
         this.playGame = this.playGame.bind(this);
     }
 
     componentDidMount() {
-        const socket = socketIOClient(this.state.endpoint);
         socket.on('connectToRoom', (data) => {
-            this.setState({ message: data.message, playerNumber: data.playerNum})
+            this.setState({ message: data.message, playerNumber: data.playerNumber})
         });
-    
+
+        socket.on('sendPlayers', (players) => {
+            this.setState({ players: Object.keys(players) });
+            this.props.history.push({ pathname: '/Game', state: { players: this.state.players, playerNumber: this.state.playerNumber } })
+        })
     }
 
     playGame() {
-        //const socket = socketIOClient(this.state.endpoint);
-        socket.emit('getPrompt').on('sendPlayers',  (players) => {
-            debugger;
-        });
+        socket.emit('getPrompt', "")
     }
 
     render() {
    
-        let startButton = this.state.playerNumber === 0 ? <Link to="/game"><button onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button></Link> : " ";
+        let startButton = this.state.playerNumber === 0 ? <button onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
         // let startButton = null;
         // if (this.state.playerNumber === 0) {
         //     startButton = <button> Start Game </button>
@@ -50,4 +50,4 @@ class Lobby extends React.Component {
     }
 }
 
-export default Lobby;
+export default withRouter(Lobby);
