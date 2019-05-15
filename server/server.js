@@ -55,11 +55,16 @@ function generateRandomId(len) {
         }
 
         socket.on('getPrompt', () => {
-            socket.to('room-' + roomno).emit("sendPlayers", clients)
+            io.in('room-' + roomno).emit("sendPlayers", clients)
         });
         
         socket.on('disconnect', () => {
             console.log('user disconnected')
+            for (let clientId in clients) {
+                let clientSocket = io.sockets.connected[clientId];
+                clientSocket.leave('room-1')
+                clientSocket.join('game-1')
+            }
         });
 
        
