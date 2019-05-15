@@ -2,9 +2,9 @@ const path = require('path');
 
 module.exports = {
   context: __dirname,
-  entry: './frontend/src/singleplayer.jsx',
+  entry: './frontend/src/index.js',
   output: {
-    path: path.resolve(__dirname),
+    path: path.resolve(__dirname, "frontend", "public"),
     filename: 'bundle.js'
   },
   resolve: {
