@@ -9,7 +9,23 @@
 
 .welcome {
     text-align: center;
-    margin-bottom: 20%;
+    margin-bottom: 10%;
+}
+
+.start-btn{
+    text-align: center;
+    display: inline-block;
+    align-self: center;
+	margin:10px;
+    font-weight: bold;
+    padding: 10px;
+    background-color: lightgray;
+    
+}
+
+.button-fix {
+ display: flex;
+ justify-content: center;
 }
 
 body {
