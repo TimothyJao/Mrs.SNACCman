@@ -1,13 +1,14 @@
 import React from 'react';
 import openSocket from 'socket.io-client';
 import {withRouter} from 'react-router-dom';
-const production = 'https://mrs-snaccman.herokuapp.com:' + process.env.PORT
+const production = 'https://mrs-snaccman.herokuapp.com:' + process.env.PORT;
 const development = 'http://localhost:5000/';
-export const url = (process.env.NODE_ENV ? production : development);
+export const url = ((process.env.NODE_ENV==='development') ? development : production);
 export const socket = openSocket(url);
 
 class Lobby extends React.Component {
     constructor(props) {
+        console.log(process.env.NODE_ENV)
         super(props);
         this.state = {
             message: "",
