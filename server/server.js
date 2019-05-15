@@ -55,7 +55,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
         }
 
         socket.on('getPrompt', () => {
-            socket.to('room-' + roomno).emit("sendPlayers", clients)
+            io.in('room-' + roomno).emit("sendPlayers", clients)
+            debugger
+            for (let clientId in clients) {
+                let clientSocket = io.sockets.connected[clientId];
+                clientSocket.leave('room-1')
+                clientSocket.join('game-1')
+            }
         });
 
 
