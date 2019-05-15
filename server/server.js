@@ -21,8 +21,6 @@ function generateRandomId(len) {
     return result;
 }
 
-// if (process.env.NODE_ENV === 'production') {
-    //app.use(express.static('./'));
     app.get('/', (req, res) => {
         res.sendFile(path.resolve('../frontend/public/index.html'));
     });
@@ -30,11 +28,9 @@ function generateRandomId(len) {
     var roomno = 1;
     io.on('connection', function (socket) {
         console.log('User Connected');
-        //Increase roomno 2 clients are present in a room.
         if (io.nsps['/'].adapter.rooms["room-" + roomno] && io.nsps['/'].adapter.rooms["room-" + roomno].length > 4) roomno++;
         socket.join("room-" + roomno);
         let clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
-        //Send this event to everyone in the room.
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
         console.log('room-' + roomno);
 
@@ -58,29 +54,18 @@ function generateRandomId(len) {
             userNum++;
         }
 
-        // for (let clientId in clients) {
-        //     let clientSocket = io.sockets.connected[clientId]
-        //     clientSocket.emit('connectToRoom', clientSocket.role)
-        // }
         socket.on('getPrompt', () => {
-            socket.emit("sendPlayers", clients)
+            socket.to('room-' + roomno).emit("sendPlayers", clients)
         });
         
         socket.on('disconnect', () => {
             console.log('user disconnected')
         });
 
-       //io.sockets.in("room-" + roomno).emit('connectToRoom', "You are in room no. " + roomno + ". You are user #" + Object.values(clients));
+       
     })
 // }
 
 app.get('/', (req, res) => res.send('Hello, world!'));
 
 server.listen(port, () => console.log(`Listening on port ${port}`))
-
-/* Handle Connections to React Actions here */
-// io.on('connection', (client) => {
-//     console.log('User connected')
-
-
-// })
