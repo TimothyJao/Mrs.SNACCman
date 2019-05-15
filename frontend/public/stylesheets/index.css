@@ -7,6 +7,10 @@
     font-family: 'Press Start 2P';
 }
 
+.welcome {
+    text-align: center;
+    margin-bottom: 20%;
+}
 
 body {
     background-color: black;
