@@ -180,7 +180,7 @@ export const shortestPath = (source, target) => {
   while (queue.length > 0) {
     const currentPosition = queue.shift();
     visited.push(currentPosition);
-    if (currentPosition == target) {
+    if (currentPosition === target) {
       return path;
     }
     const neighbors = currentPosition.neighbors;

@@ -1,6 +1,5 @@
 import {Entity, GHOST} from "./Entity";
 // import {SNACCMAN, PELLET, BIG_PELLET} from "./Entity";
-import { debug } from "util";
 
 class Ghost extends Entity{
     constructor(x, y, type=GHOST, velocity){

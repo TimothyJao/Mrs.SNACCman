@@ -26,7 +26,7 @@ class GridCell {
 
     canMoveLeft() {
         if (this.left !== undefined) return this.left;
-        if (this.grid[this.x][this.y] === "X" ||((this.x === 0) || this.grid[this.wrapX(this.x - 1)][this.y] === "X") && (this.y != 13 || this.x != 0)) {
+        if (this.grid[this.x][this.y] === "X" ||((this.x === 0) || this.grid[this.wrapX(this.x - 1)][this.y] === "X") && (this.y !== 13 || this.x !== 0)) {
             this.left = false;
         } else {
             this.left = true;
@@ -46,7 +46,7 @@ class GridCell {
 
     canMoveRight() {
         if (this.right !== undefined) return this.right;
-        if (this.grid[this.x][this.y] === "X" ||(this.x === this.grid.length - 1 || this.grid[this.wrapX(this.x + 1)][this.y] === "X") && (this.y != 13 || this.x != this.grid.length - 1)) {
+        if (this.grid[this.x][this.y] === "X" ||(this.x === this.grid.length - 1 || this.grid[this.wrapX(this.x + 1)][this.y] === "X") && (this.y !== 13 || this.x !== this.grid.length - 1)) {
             this.right = false;
         } else {
             this.right = true;

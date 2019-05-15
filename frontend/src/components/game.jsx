@@ -34,7 +34,7 @@ class Game extends React.Component {
     // lag = Math.abs(lag)
     const player = data.player;
     const entity = data.entity;
-    if(player == 0){
+    if(player === 0){
       this.snaccman.pos = entity.pos;
       this.snaccman.bufferedVelocity = entity.bufferedVelocity;
       this.snaccman.velocity = entity.velocity;
@@ -320,7 +320,7 @@ class Game extends React.Component {
     entity.previousVelocity = entity.velocity;
     entity.velocity = entity.bufferedVelocity;
     const moved = this.updatePosition(entity);
-    if (!moved && entity.velocity != entity.previousVelocity) {
+    if (!moved && entity.velocity !== entity.previousVelocity) {
       entity.velocity = entity.previousVelocity;
       this.updatePosition(entity);
     } else {
@@ -435,7 +435,7 @@ class Game extends React.Component {
         }
       }
       if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE) {
-        if (this.game.getCellAtPos(this.respawnLocation) == this.game.getCellAtPos(ghostCenter)) {
+        if (this.game.getCellAtPos(this.respawnLocation) === this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
           ghost.velocity = UP;
@@ -458,16 +458,16 @@ class Game extends React.Component {
     const cell = path[ghostCell.toString()];
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
-    if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {
+    if (this.game.getCell(ghostCellX + 1, ghostCellY) === cell) {
       ghost.bufferedVelocity = RIGHT;
     }
-    if (this.game.getCell(ghostCellX - 1, ghostCellY) == cell) {
+    if (this.game.getCell(ghostCellX - 1, ghostCellY) === cell) {
       ghost.bufferedVelocity = LEFT;
     }
-    if (this.game.getCell(ghostCellX, ghostCellY + 1) == cell) {
+    if (this.game.getCell(ghostCellX, ghostCellY + 1) === cell) {
       ghost.bufferedVelocity = DOWN;
     }
-    if (this.game.getCell(ghostCellX, ghostCellY - 1) == cell) {
+    if (this.game.getCell(ghostCellX, ghostCellY - 1) === cell) {
       ghost.bufferedVelocity = UP;
     }
   }
@@ -484,16 +484,16 @@ class Game extends React.Component {
     const cell = path[ghostCell.toString()];
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
-    if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {
+    if (this.game.getCell(ghostCellX + 1, ghostCellY) === cell) {
       ghost.bufferedVelocity = RIGHT;
     }
-    if (this.game.getCell(ghostCellX - 1, ghostCellY) == cell) {
+    if (this.game.getCell(ghostCellX - 1, ghostCellY) === cell) {
       ghost.bufferedVelocity = LEFT;
     }
-    if (this.game.getCell(ghostCellX, ghostCellY + 1) == cell) {
+    if (this.game.getCell(ghostCellX, ghostCellY + 1) === cell) {
       ghost.bufferedVelocity = DOWN;
     }
-    if (this.game.getCell(ghostCellX, ghostCellY - 1) == cell) {
+    if (this.game.getCell(ghostCellX, ghostCellY - 1) === cell) {
       ghost.bufferedVelocity = UP;
     }
   }
@@ -718,6 +718,8 @@ class Game extends React.Component {
       case DOWN.join(","):
         direction = "down";
         break;
+      default:
+        break;
     }
 
     //sprite rotation = 0->1->0->2->repeat
@@ -734,6 +736,8 @@ class Game extends React.Component {
         break;
       case 3:
         imgNumber = 2;
+        break;
+      default:
         break;
     }
 

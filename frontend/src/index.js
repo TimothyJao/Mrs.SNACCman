@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 // import App from './App';
 import * as serviceWorker from './serviceWorker';
 import Root from './components/Root';
-import store from './store/store';
 import configureStore from './store/store';
 
 
