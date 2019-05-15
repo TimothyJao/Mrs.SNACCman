@@ -13,13 +13,12 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// function generateRandomId(len) {
-//     let result = "";
-//     for (let i = 0; i < len; i++) {
-//         result += Math.floor(Math.random() * 10);
-//     }
-//     return result;
-// }
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static('frontend/public'));
+        app.get('/', (req, res) => {
+            res.sendFile(path.resolve(__dirname, 'frontend', 'public', 'index.html'));
+        })
+    }
 
     app.get('/', (req, res) => {
         res.sendFile(path.resolve('../frontend/public/index.html'));
