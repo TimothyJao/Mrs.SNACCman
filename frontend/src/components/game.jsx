@@ -28,6 +28,7 @@ class Game extends React.Component {
   }
 
   receiveData(data) {
+    if(this.numberOfPlayers === 1) return; //no sockets on single player
     clearInterval(this.intervalId);
     let lag = this.frame - data.frame;
     // lag = Math.abs(lag)
@@ -51,6 +52,7 @@ class Game extends React.Component {
   } 
 
   sendData(entity) {
+    if(this.numberOfPlayers === 1) return; //no sockets on single player
     const data = { frame: this.frame, entity, player: this.currentPlayer };
     socket.emit('getPlayer', data);
   }

@@ -8,7 +8,6 @@ export const socket = openSocket(url);
 
 class Lobby extends React.Component {
     constructor(props) {
-        console.log(process.env.NODE_ENV)
         super(props);
         this.state = {
             message: "",
