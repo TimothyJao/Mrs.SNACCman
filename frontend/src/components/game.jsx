@@ -8,7 +8,7 @@ import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 import Grid from "../classes/Grid";
 import Ghost from "../classes/Ghost";
 import Snaccman from "../classes/Snaccman";
-import { GameUtil, distance, shortestPath } from "../util/game_util";
+import { GameUtil, distance, shortestPath, random } from "../util/game_util";
 // import openSocket from 'socket.io-client';
 import {socket} from "./Lobby";
 // const socket = openSocket('http://localhost:5000');
@@ -28,23 +28,30 @@ class Game extends React.Component {
   }
 
   receiveData(data) {
+    clearInterval(this.intervalId);
     let lag = this.frame - data.frame;
-    lag = Math.abs(lag)
-    while(lag != 0){
-      this.updateEntity(data.entity)
+    // lag = Math.abs(lag)
+    const player = data.player;
+    const entity = data.entity;
+    if(player == 0){
+      this.snaccman.pos = entity.pos;
+      this.snaccman.bufferedVelocity = entity.bufferedVelocity;
+      this.snaccman.velocity = entity.velocity;
+    }else{
+      this.ghosts[player - 1].pos = entity.pos;
+      this.ghosts[player - 1].bufferedVelocity = entity.bufferedVelocity;
+      this.ghosts[player - 1].velocity = entity.velocity;
+    }
+    while(lag > 0){
+      this.updateEntity(entity);
       this.checkCollisions();
       lag--;
     }
+    this.intervalId = setInterval(this.nextFrame, 1000 / FPS);
   } 
 
-  sendData() {
-    let entity;
-    if (this.currentPlayer == 0) {
-      entity = this.snaccman;
-    } else {
-      entity = this.ghosts[this.currentPlayer - 1];
-    }
-    const data = { frame: this.frame, entity };
+  sendData(entity) {
+    const data = { frame: this.frame, entity, player: this.currentPlayer };
     socket.emit('getPlayer', data);
   }
 
@@ -68,8 +75,8 @@ class Game extends React.Component {
     if(this.props.location && this.props.location.state && this.props.location.state.playerNumber) this.currentPlayer = this.props.location.state.playerNumber;
     this.numberOfPlayers = this.props.numberOfPlayers || 1;
     if(this.props.location && this.props.location.state && this.props.location.state.players) this.numberOfPlayers = this.props.location.state.players.length;
-    this.waiting = true;
-    this.loading = 3 * FPS;
+    this.waiting = false;
+    this.loading = 5 * FPS;
     this.snaccman = new Snaccman(...this.startPosition, SNACCMAN, RIGHT);
     this.ghosts = [
       new Ghost(12, 12, GHOST, UP),
@@ -81,7 +88,13 @@ class Game extends React.Component {
       ghost.bufferedVelocity = ghost.velocity;
       ghost.initialPos = ghost.pos;
       ghost.spawning = 2 * FPS * i;
+      ghost.ai = (i >= this.numberOfPlayers - 1 );
     });
+    if(this.numberOfPlayers > 1){
+      for(let i = this.numberOfPlayers - 1; i < 5; i++){
+        delete this.ghosts[i];
+      }
+    }
     this.pellets = grid.getPelletGrid();
     this.game = new GameUtil(grid.getMoveGrid());
 
@@ -142,70 +155,62 @@ class Game extends React.Component {
       entity = this.ghosts[this.currentPlayer - 1];
     }
     switch (e.keyCode) {
-      case 13://Enter begins the game
-        if (this.waiting) {
-          this.loading = 3 * FPS;
-          this.waiting = false;
-        } else if (this.loading) {
-          this.loading = 0;
-        }
-        break;
-      case 81: //q quits the game for testing
-        console.log("Snaccman: ");
-        console.log(this.snaccman);
-        console.log("Center of snaccman: ");
-        console.log(this.center);
-        clearInterval(this.intervalId);
-        document.removeEventListener("keydown", this.handleInput);
-        break;
-      case 80: //P enables super snacc thiccness mode for testing
-        this.snaccTime();
-        break;
-      case 75: //K kills snaccman for testing
-        this.killSnaccman();
-        break;
+      // case 13://Enter begins the game
+      //   // if (this.waiting) {
+      //   //   this.loading = 3 * FPS;
+      //   //   this.waiting = false;
+      //   // }
+      //   break;
+      // case 80: //P enables super snacc thiccness mode for testing
+      //   this.snaccTime();
+      //   break;
+      // case 75: //K kills snaccman for testing
+      //   this.killSnaccman();
+      //   break;
       case 38: //arrow up
       case 87: //W
         entity.bufferedVelocity = UP;
-        this.sendData();
+        this.sendData(entity);
         break;
       case 37: //arrow left
       case 65: //A
         entity.bufferedVelocity = LEFT;
-        this.sendData();
+        this.sendData(entity);
         break;
       case 40: //arrow down
       case 83: //S
         entity.bufferedVelocity = DOWN;
-        this.sendData();
+        this.sendData(entity);
         break;
       case 39: //arrow right
       case 68: //D
         entity.bufferedVelocity = RIGHT;
-        this.sendData();
+        this.sendData(entity);
         break;
-      case 49: //1 -> switch to snaccman
-        this.currentPlayer = 0;
-        break;
-      case 50: //2 -> switch to ghost 1
-        this.currentPlayer = 1;
-        break;
-      case 51: //3 -> switch to ghost 2
-        this.currentPlayer = 2;
-        break;
-      case 52: //4 -> switch to ghost 3
-        this.currentPlayer = 3;
-        break;
-      case 53: //5 -> switch to ghost 4
-        this.currentPlayer = 4;
-        break;
-      case 187: //+ wins the game for testing
-        this.pellets.forEach((row, x) => {
-          row.forEach((cell, y) => {
-            if (cell !== undefined) delete this.pellets[x][y];
-          });
-        });
-        this.pelletCount = 0;
+      // case 49: //1 -> switch to snaccman
+      //   this.currentPlayer = 0;
+      //   break;
+      // case 50: //2 -> switch to ghost 1
+      //   this.currentPlayer = 1;
+      //   break;
+      // case 51: //3 -> switch to ghost 2
+      //   this.currentPlayer = 2;
+      //   break;
+      // case 52: //4 -> switch to ghost 3
+      //   this.currentPlayer = 3;
+      //   break;
+      // case 53: //5 -> switch to ghost 4
+      //   this.currentPlayer = 4;
+      //   break;
+      // case 187: //+ wins the game for testing
+      //   this.pellets.forEach((row, x) => {
+      //     row.forEach((cell, y) => {
+      //       if (cell !== undefined) delete this.pellets[x][y];
+      //     });
+      //   });
+      //   this.pelletCount = 0;
+      //   break;
+      default:
         break;
     }
   }
@@ -364,9 +369,10 @@ class Game extends React.Component {
       LEFT,
       RIGHT
     ];
-    entity.bufferedVelocity = velocities[Math.floor(Math.random() * velocities.length)];
+    entity.bufferedVelocity = velocities[Math.floor(random(this.frame*entity.pos[0]) * velocities.length)];
   }
   computeNextMove(ghost) {
+    if(!ghost.ai) return;
     if (ghost.dead) {
       this.calculateRespawnPath(ghost);
     } else if (this.isSuper) {

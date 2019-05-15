@@ -191,4 +191,10 @@ export const shortestPath = (source, target) => {
       }
     }
   }
-}
+};
+
+//https://stackoverflow.com/a/19303725
+export const random = (seed)=>{
+  const x = Math.sin(seed)*10000;
+  return x - Math.floor(x);
+};
