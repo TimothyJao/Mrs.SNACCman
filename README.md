@@ -7,13 +7,13 @@ In Mrs. Snaccman, we plan to add multiplayer functionalities to make the game mo
 ### Functionality and MVP Features
 
 #### Functionality
-*Players will use the arrow keys to control their sprites
-*Snaccman
-    *Goal is to collect all the pellets on the screen
-    *Game ends when the player runs out of lives
-*Ghosts
-    *Goal is to work together to kill Snaccman as many times as possible
-    *Unless Snaccman is powered up, touching Snaccman will kill her
+* Players will use the arrow keys to control their sprites
+* Snaccman
+    * Goal is to collect all the pellets on the screen
+    * Game ends when the player runs out of lives
+* Ghosts
+    * Goal is to work together to kill Snaccman as many times as possible
+    * Unless Snaccman is powered up, touching Snaccman will kill her
 
 #### MVP Features
 
