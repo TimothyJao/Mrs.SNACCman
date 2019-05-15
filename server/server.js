@@ -13,13 +13,13 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-function generateRandomId(len) {
-    let result = "";
-    for (let i = 0; i < len; i++) {
-        result += Math.floor(Math.random() * 10);
-    }
-    return result;
-}
+// function generateRandomId(len) {
+//     let result = "";
+//     for (let i = 0; i < len; i++) {
+//         result += Math.floor(Math.random() * 10);
+//     }
+//     return result;
+// }
 
     app.get('/', (req, res) => {
         res.sendFile(path.resolve('../frontend/public/index.html'));
@@ -57,6 +57,26 @@ function generateRandomId(len) {
         socket.on('getPrompt', () => {
             socket.to('room-' + roomno).emit("sendPlayers", clients)
         });
+
+
+
+
+
+
+
+
+
+
+        /* should return a pojo of a player   */
+        socket.on('getPlayer', (data) => {
+            // want to dispatch all changes to all players
+            socket.emit('getPlayerData', { frame: data.frame, entity: data.entity})
+        });
+
+        /* should return a pojo of all players */
+        // socket.on('getPlayers', (player) => {
+
+        // })
         
         socket.on('disconnect', () => {
             console.log('user disconnected')

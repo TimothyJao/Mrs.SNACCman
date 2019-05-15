@@ -1,8 +1,7 @@
 import React from 'react';
-import socketIOClient from 'socket.io-client';
 import openSocket from 'socket.io-client';
 import {withRouter} from 'react-router-dom';
-const socket = openSocket('http://localhost:5000');
+export const socket = openSocket('http://localhost:5000');
 
 class Lobby extends React.Component {
     constructor(props) {
@@ -34,12 +33,7 @@ class Lobby extends React.Component {
     render() {
    
         let startButton = this.state.playerNumber === 0 ? <button onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
-        // let startButton = null;
-        // if (this.state.playerNumber === 0) {
-        //     startButton = <button> Start Game </button>
-        // } else {
-        //     startButton = "";
-        // }
+
         return (
             <div>
                 <h1 style={{color:'white'}}> Welcome </h1>

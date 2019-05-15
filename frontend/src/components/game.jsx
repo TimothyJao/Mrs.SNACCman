@@ -1,6 +1,4 @@
 import React from "react";
-// import io from "socket.io-client"; 
-// const socket = openSocket('http://localhost:5000');
 import { withRouter } from 'react-router-dom';
 import {BACKGROUND_COLOR, WALL_COLOR, WALL_FLASH_COLOR, WALL_FILL_FLASH_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
@@ -11,6 +9,9 @@ import Grid from "../classes/Grid";
 import Ghost from "../classes/Ghost";
 import Snaccman from "../classes/Snaccman";
 import { GameUtil, distance, shortestPath } from "../util/game_util";
+// import openSocket from 'socket.io-client';
+import {socket} from "./Lobby";
+// const socket = openSocket('http://localhost:5000');
 
 const UP = [0,-1];
 const DOWN = [0,1];
@@ -19,16 +20,32 @@ const RIGHT = [1, 0];
 
 class Game extends React.Component {
   constructor(props) {
-
     super(props);
     this.setupNewGame();
+    this.state = {
+      endpoint: "http://localhost:5000"
+    };
   }
 
   receiveData(data) {
     const { frame, entity } = data;
     console.log("Frame: ", frame);
     console.log("Entity: ", entity);
-  }
+    socket.on('getPlayerData', (data) => {
+      return {frame: data.frame,
+      entity: data.entity}
+    });
+  } 
+
+  // componentDidMount(){
+  //   socket.on('getPlayerData', (data) => {
+  //     return {
+  //       frame: data.frame,
+  //       entity: data.entity
+  //     }
+  //   });
+  // }
+
   sendData() {
     let entity;
     if (this.currentPlayer == 0) {
@@ -37,7 +54,7 @@ class Game extends React.Component {
       entity = this.ghosts[this.currentPlayer - 1];
     }
     const data = { frame: this.frame, entity };
-    console.log(data); // SEND THIS DATA TO THE OTHER PLAYERS
+    socket.emit('getPlayer', data);
   }
 
   setupNewGame(){
@@ -821,5 +838,5 @@ class Game extends React.Component {
     return <canvas id="game-canvas" width={this.game.GameWidth()} height={this.game.GameHeight()} />;
   }
 }
-export default Game;
-// export default withRouter(Game);
+// export default Game;
+export default withRouter(Game);
