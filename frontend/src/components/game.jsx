@@ -28,9 +28,13 @@ class Game extends React.Component {
   }
 
   receiveData(data) {
-    const { frame, entity } = data;
-    console.log("Frame: ", frame);
-    console.log("Entity: ", entity);
+    let lag = this.frame - data.frame;
+    lag = Math.abs(lag)
+    while(lag != 0){
+      this.updateEntity(data.entity)
+      this.checkCollisions();
+      lag--;
+    }
   } 
 
   sendData() {
@@ -277,7 +281,7 @@ class Game extends React.Component {
   }
 
   updatePositions() {
-    if (this.currentPlayer !== 0) this.randomizeMovement(this.snaccman);
+    //if (this.currentPlayer !== 0) this.randomizeMovement(this.snaccman);
     this.updateEntity(this.snaccman);
     this.ghosts.forEach((ghost, i) => {
       if (this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
