@@ -23,7 +23,7 @@ class Game extends React.Component {
     super(props);
     this.setupNewGame();
   }
-  
+
   receiveData(data) {
     const { frame, entity } = data;
     console.log("Frame: ", frame);
@@ -31,12 +31,12 @@ class Game extends React.Component {
   }
   sendData() {
     let entity;
-    if (currentPlayer == 0) {
+    if (this.currentPlayer == 0) {
       entity = this.snaccman;
     } else {
-      entity = this.ghosts[currentPlayer - 1];
+      entity = this.ghosts[this.currentPlayer - 1];
     }
-    data = { frame: this.frame, entity };
+    const data = { frame: this.frame, entity };
     console.log(data); // SEND THIS DATA TO THE OTHER PLAYERS
   }
 
@@ -155,18 +155,22 @@ class Game extends React.Component {
       case 38: //arrow up
       case 87: //W
         entity.bufferedVelocity = UP;
+        this.sendData();
         break;
       case 37: //arrow left
       case 65: //A
         entity.bufferedVelocity = LEFT;
+        this.sendData();
         break;
       case 40: //arrow down
       case 83: //S
         entity.bufferedVelocity = DOWN;
+        this.sendData();
         break;
       case 39: //arrow right
       case 68: //D
         entity.bufferedVelocity = RIGHT;
+        this.sendData();
         break;
       case 49: //1 -> switch to snaccman
         this.currentPlayer = 0;
@@ -817,5 +821,5 @@ class Game extends React.Component {
     return <canvas id="game-canvas" width={this.game.GameWidth()} height={this.game.GameHeight()} />;
   }
 }
-
-export default withRouter(Game);
+export default Game;
+// export default withRouter(Game);
