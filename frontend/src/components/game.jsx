@@ -24,6 +24,22 @@ class Game extends React.Component {
     this.setupNewGame();
   }
 
+  receiveData(data) {
+    const { frame, entity } = data;
+    console.log("Frame: ", frame);
+    console.log("Entity: ", entity);
+  }
+  sendData() {
+    let entity;
+    if (this.currentPlayer == 0) {
+      entity = this.snaccman;
+    } else {
+      entity = this.ghosts[this.currentPlayer - 1];
+    }
+    const data = { frame: this.frame, entity };
+    console.log(data); // SEND THIS DATA TO THE OTHER PLAYERS
+  }
+
   setupNewGame(){
     //initialize new game variables to default states
     const grid = new Grid();
@@ -138,19 +154,23 @@ class Game extends React.Component {
         break;
       case 38: //arrow up
       case 87: //W
-        entity.bufferedVelocity = [0, -1];
+        entity.bufferedVelocity = UP;
+        this.sendData();
         break;
       case 37: //arrow left
       case 65: //A
-        entity.bufferedVelocity = [-1, 0];
+        entity.bufferedVelocity = LEFT;
+        this.sendData();
         break;
       case 40: //arrow down
       case 83: //S
-        entity.bufferedVelocity = [0, 1];
+        entity.bufferedVelocity = DOWN;
+        this.sendData();
         break;
       case 39: //arrow right
       case 68: //D
-        entity.bufferedVelocity = [1, 0];
+        entity.bufferedVelocity = RIGHT;
+        this.sendData();
         break;
       case 49: //1 -> switch to snaccman
         this.currentPlayer = 0;
@@ -180,13 +200,13 @@ class Game extends React.Component {
   killSnaccman() {
     this.snaccman.pos = this.startPosition;
     this.multiplier = 1;
-    this.snaccman.velocity = [1, 0];
-    this.snaccman.bufferedVelocity = [1, 0];
+    this.snaccman.velocity = RIGHT;
+    this.snaccman.bufferedVelocity = RIGHT;
     this.frame = 0;
     this.ghosts.forEach((ghost, i) => {
       ghost.pos = ghost.initialPos;
-      ghost.velocity = [0, -1];
-      ghost.bufferedVelocity = [0, -1];
+      ghost.velocity = UP;
+      ghost.bufferedVelocity = UP;
       ghost.spawning = 2 * FPS * i;
       ghost.dead = false;
     });
@@ -322,15 +342,16 @@ class Game extends React.Component {
   randomizeMovement(entity) {
     if (this.frame % 20 !== 0) return;
     if (this.inGhostRegion(entity)) {
-      entity.velocity = [0, -1];
-      entity.bufferedVelocity = [0, -1];
+      entity.velocity = UP;
+      entity.bufferedVelocity = UP;
       return;
     }
     const velocities = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0]];
+      DOWN,
+      UP,
+      LEFT,
+      RIGHT
+    ];
     entity.bufferedVelocity = velocities[Math.floor(Math.random() * velocities.length)];
   }
   computeNextMove(ghost) {
@@ -387,8 +408,8 @@ class Game extends React.Component {
         if (this.game.getCellAtPos(this.respawnLocation) == this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
-          ghost.velocity = [0, -1];
-          ghost.bufferedVelocity = [0, -1];
+          ghost.velocity = UP;
+          ghost.bufferedVelocity = UP;
           ghost.spawning = 2 * FPS;
         }
       }
@@ -408,16 +429,16 @@ class Game extends React.Component {
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
     if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {
-      ghost.bufferedVelocity = [1, 0];
+      ghost.bufferedVelocity = RIGHT;
     }
     if (this.game.getCell(ghostCellX - 1, ghostCellY) == cell) {
-      ghost.bufferedVelocity = [-1, 0];
+      ghost.bufferedVelocity = LEFT;
     }
     if (this.game.getCell(ghostCellX, ghostCellY + 1) == cell) {
-      ghost.bufferedVelocity = [0, 1];
+      ghost.bufferedVelocity = DOWN;
     }
     if (this.game.getCell(ghostCellX, ghostCellY - 1) == cell) {
-      ghost.bufferedVelocity = [0, -1];
+      ghost.bufferedVelocity = UP;
     }
   }
   calculateRespawnPath(ghost) {
@@ -434,16 +455,16 @@ class Game extends React.Component {
 
     let [ghostCellX, ghostCellY] = [ghostCell.x, ghostCell.y];
     if (this.game.getCell(ghostCellX + 1, ghostCellY) == cell) {
-      ghost.bufferedVelocity = [1, 0];
+      ghost.bufferedVelocity = RIGHT;
     }
     if (this.game.getCell(ghostCellX - 1, ghostCellY) == cell) {
-      ghost.bufferedVelocity = [-1, 0];
+      ghost.bufferedVelocity = LEFT;
     }
     if (this.game.getCell(ghostCellX, ghostCellY + 1) == cell) {
-      ghost.bufferedVelocity = [0, 1];
+      ghost.bufferedVelocity = DOWN;
     }
     if (this.game.getCell(ghostCellX, ghostCellY - 1) == cell) {
-      ghost.bufferedVelocity = [0, -1];
+      ghost.bufferedVelocity = UP;
     }
   }
   inGhostRegion(entity) {
@@ -655,16 +676,16 @@ class Game extends React.Component {
     const [xStart, yStart] = this.game.getStartPositionForCell(...this.snaccman.pos);
     let direction = "right"; //default
     switch (this.snaccman.velocity.join(",")) {
-      case "1,0":
+      case RIGHT.join(","):
         direction = "right";
         break;
-      case "-1,0":
+      case LEFT.join(","):
         direction = "left";
         break;
-      case "0,-1":
+      case UP.join(","):
         direction = "up";
         break;
-      case "0,1":
+      case DOWN.join(","):
         direction = "down";
         break;
     }
@@ -800,5 +821,5 @@ class Game extends React.Component {
     return <canvas id="game-canvas" width={this.game.GameWidth()} height={this.game.GameHeight()} />;
   }
 }
-
-export default withRouter(Game);
+export default Game;
+// export default withRouter(Game);
