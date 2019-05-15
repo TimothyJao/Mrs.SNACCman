@@ -7,14 +7,26 @@ IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL
 PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL, ALT_PELLET_COLOR, WALL_FILL_COLOR, TEXT_OUTLINE_COLOR } from "../util/constants";
 
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
-
+import Grid from "../classes/Grid";
+import Ghost from "../classes/Ghost";
+import Snaccman from "../classes/Snaccman";
 import { GameUtil, distance, shortestPath } from "../util/game_util";
-// import Ghost from "../classes/Ghost";
+
+const UP = [0,-1];
+const DOWN = [0,1];
+const LEFT = [-1, 0];
+const RIGHT = [1, 0];
 
 class Game extends React.Component {
   constructor(props) {
 
     super(props);
+    this.setupNewGame();
+  }
+
+  setupNewGame(){
+    //initialize new game variables to default states
+    const grid = new Grid();
     this.frame = 0;
     this.finished = false;
     this.isSuper = 0;
@@ -23,25 +35,31 @@ class Game extends React.Component {
     this.bonus = 3000;
     this.multiplier = 1;
     this.lives = 3;
-    this.pelletCount = 999; // Needs to be > 1, gets reset when pellets are drawn
-    this.start_position = [12.5, 22];
-    this.respawn_location = [12, 10];
+    this.pelletCount = 1; // Needs to be >= 1, gets reset when pellets are drawn
+    this.startPosition = [12.5, 22];
+    this.respawnLocation = [12, 10];
     this.ghostRegion = [[9, 11], [16, 15]];
 
-    this.player = props.player || 0; //0 = pacman, 1-4 are ghosts
-
+    this.currentPlayer = this.props.currentPlayer || 0; //0 = pacman, 1-4 are ghosts
+    if(this.props.location && this.props.location.state && this.props.location.state.playerNumber) this.currentPlayer = this.props.location.state.playerNumber;
+    this.numberOfPlayers = this.props.numberOfPlayers || 1;
+    if(this.props.location && this.props.location.state && this.props.location.state.players) this.numberOfPlayers = this.props.location.state.players.length;
     this.waiting = true;
     this.loading = 3 * FPS;
-
-    this.snaccman = props.snaccman;
-    this.ghosts = props.ghosts;
+    this.snaccman = new Snaccman(...this.startPosition, SNACCMAN, RIGHT);
+    this.ghosts = [
+      new Ghost(12, 12, GHOST, UP),
+      new Ghost(12, 13, GHOST, UP),
+      new Ghost(13, 12, GHOST, UP),
+      new Ghost(13, 13, GHOST, UP)
+    ];
     this.ghosts.forEach((ghost, i) => {
-    ghost.bufferedVelocity = ghost.velocity;
+      ghost.bufferedVelocity = ghost.velocity;
       ghost.initialPos = ghost.pos;
       ghost.spawning = 2 * FPS * i;
     });
-    this.pellets = props.pellets;
-    this.game = new GameUtil(props.grid);
+    this.pellets = grid.getPelletGrid();
+    this.game = new GameUtil(grid.getMoveGrid());
 
     this.snaccman.bufferedVelocity = this.snaccman.velocity;
 
@@ -90,10 +108,10 @@ class Game extends React.Component {
   }
   handleInput(e) {
     let entity;
-    if (this.player === 0) {
+    if (this.currentPlayer === 0) {
       entity = this.snaccman;
     } else {
-      entity = this.ghosts[this.player - 1];
+      entity = this.ghosts[this.currentPlayer - 1];
     }
     switch (e.keyCode) {
       case 13://Enter begins the game
@@ -135,19 +153,19 @@ class Game extends React.Component {
         entity.bufferedVelocity = [1, 0];
         break;
       case 49: //1 -> switch to snaccman
-        this.player = 0;
+        this.currentPlayer = 0;
         break;
       case 50: //2 -> switch to ghost 1
-        this.player = 1;
+        this.currentPlayer = 1;
         break;
       case 51: //3 -> switch to ghost 2
-        this.player = 2;
+        this.currentPlayer = 2;
         break;
       case 52: //4 -> switch to ghost 3
-        this.player = 3;
+        this.currentPlayer = 3;
         break;
       case 53: //5 -> switch to ghost 4
-        this.player = 4;
+        this.currentPlayer = 4;
         break;
       case 187: //+ wins the game for testing
         this.pellets.forEach((row, x) => {
@@ -160,7 +178,7 @@ class Game extends React.Component {
     }
   }
   killSnaccman() {
-    this.snaccman.pos = this.start_position;
+    this.snaccman.pos = this.startPosition;
     this.multiplier = 1;
     this.snaccman.velocity = [1, 0];
     this.snaccman.bufferedVelocity = [1, 0];
@@ -231,17 +249,17 @@ class Game extends React.Component {
   }
 
   updatePositions() {
-    if (this.player !== 0) this.randomizeMovement(this.snaccman);
+    if (this.currentPlayer !== 0) this.randomizeMovement(this.snaccman);
     this.updateEntity(this.snaccman);
     this.ghosts.forEach((ghost, i) => {
-      if (this.player - 1 !== i) this.computeNextMove(ghost);
+      if (this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
       if (ghost.spawning > 0) ghost.spawning--;
       if (ghost.spawning === 0 && (!this.isSuper || ghost.dead)) this.updateEntity(ghost);
       //only move ghosts half speed when in snacctime
       if (ghost.spawning === 0 && !ghost.dead && this.isSuper && this.frame % 2 === 0) this.updateEntity(ghost);
       //move ghost double speed when dead
       if (ghost.dead) {
-        if (this.player - 1 !== i) this.computeNextMove(ghost);
+        if (this.currentPlayer - 1 !== i) this.computeNextMove(ghost);
         if (ghost.spawning > 0) ghost.spawning--;
         if (ghost.spawning === 0) this.updateEntity(ghost);
       }
@@ -265,21 +283,21 @@ class Game extends React.Component {
   updatePosition(entity) {
     if (entity.velocity.join(",") === "0,0") return true; //stationary
 
-    const [current_x, current_y] = entity.pos;
+    const [currentX, currentY] = entity.pos;
     const size = entity.size || IMG_SIZE;
 
-    let next_x = current_x + entity.velocity[0] * MOVE_SPEED;
-    let next_y = current_y + entity.velocity[1] * MOVE_SPEED;
+    let nextX = currentX + entity.velocity[0] * MOVE_SPEED;
+    let nextY = currentY + entity.velocity[1] * MOVE_SPEED;
 
-    const left = Math.floor(current_x + WALL_SIZE);
-    const top = Math.floor(current_y + WALL_SIZE);
-    const right = (current_x + size + 2 * WALL_SIZE);
-    const bottom = (current_y + size + 2 * WALL_SIZE);
+    const left = Math.floor(currentX + WALL_SIZE);
+    const top = Math.floor(currentY + WALL_SIZE);
+    const right = (currentX + size + 2 * WALL_SIZE);
+    const bottom = (currentY + size + 2 * WALL_SIZE);
 
-    const nextLeft = Math.floor(next_x + WALL_SIZE);
-    const nextTop = Math.floor(next_y + WALL_SIZE);
-    const nextRight = Math.floor(next_x + size + 2 * WALL_SIZE);
-    const nextBottom = Math.floor(next_y + size + 2 * WALL_SIZE);
+    const nextLeft = Math.floor(nextX + WALL_SIZE);
+    const nextTop = Math.floor(nextY + WALL_SIZE);
+    const nextRight = Math.floor(nextX + size + 2 * WALL_SIZE);
+    const nextBottom = Math.floor(nextY + size + 2 * WALL_SIZE);
 
     //prevent movement if there is a wall
     if (nextLeft < left) { //Attempting to move left
@@ -294,7 +312,7 @@ class Game extends React.Component {
     if (nextBottom > bottom) { //Attempting to move down
       if (!this.game.getBottomLeftCell(entity).canMoveDown() || !this.game.getBottomRightCell(entity).canMoveDown()) return false;
     }
-    entity.pos = this.game.wrapPos([next_x, next_y]);
+    entity.pos = this.game.wrapPos([nextX, nextY]);
     return true;
   }
   snaccTime(time = 5 * FPS) {
@@ -325,32 +343,32 @@ class Game extends React.Component {
     }
   }
   checkCollisions() {
-    const [start_x, start_y] = this.snaccman.pos;
+    const [startX, startY] = this.snaccman.pos;
     //center of snaccman to test eating
-    const center = this.game.wrapPos([start_x + (IMG_SIZE / 2), start_y + (IMG_SIZE / 2)]);
+    const center = this.game.wrapPos([startX + (IMG_SIZE / 2), startY + (IMG_SIZE / 2)]);
     this.center = center;
     const cell = this.game.getCellAtPos(center);
     const pellet = this.pellets[cell.x][cell.y];
 
     if (pellet) {
-      const pellet_pos = [pellet.pos[0] + 0.5, pellet.pos[1] + 0.5]; //pellet is centered
+      const pelletPos = [pellet.pos[0] + 0.5, pellet.pos[1] + 0.5]; //pellet is centered
       if (pellet.type === BIG_PELLET) {
-        if (distance(center, pellet_pos) < BIG_PELLET_SIZE / PIXEL_SIZE) {
-          delete this.pellets[cell.x][cell.y];// = {type: "NOT_A_PELLET", pos: [0,0]};
+        if (distance(center, pelletPos) < BIG_PELLET_SIZE / PIXEL_SIZE) {
+          delete this.pellets[cell.x][cell.y];
           this.snaccTime();
           this.score += 10;
         }
       } else if (pellet.type === PELLET) {
-        if (distance(center, pellet_pos) < PELLET_SIZE / PIXEL_SIZE) {
-          delete this.pellets[cell.x][cell.y];// = { type: "NOT_A_PELLET", pos: [0, 0] };
+        if (distance(center, pelletPos) < PELLET_SIZE / PIXEL_SIZE) {
+          delete this.pellets[cell.x][cell.y];
           this.score += 10;
         }
       }
     }
     let killed = false;
     this.ghosts.forEach(ghost => {
-      const [ghost_start_x, ghost_start_y] = ghost.pos;
-      const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+      const [ghostStartX, ghostStartY] = ghost.pos;
+      const ghostCenter = this.game.wrapPos([ghostStartX + (IMG_SIZE / 2), ghostStartY + (IMG_SIZE / 2)]);
       if (distance(center, ghostCenter) < IMG_SIZE) {
         if (ghost.dead) {
           //nothing, ghost is dead
@@ -365,8 +383,8 @@ class Game extends React.Component {
           killed = true;
         }
       }
-      if (ghost.dead && distance(ghostCenter, this.respawn_location) < IMG_SIZE) {
-        if (this.game.getCellAtPos(this.respawn_location) == this.game.getCellAtPos(ghostCenter)) {
+      if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE) {
+        if (this.game.getCellAtPos(this.respawnLocation) == this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
           ghost.velocity = [0, -1];
@@ -377,10 +395,10 @@ class Game extends React.Component {
     });
   }
   calculateShortestPath(ghost) {
-    const [start_x, start_y] = this.snaccman.pos;
-    const snaccmanCenter = this.game.wrapPos([start_x + (IMG_SIZE / 2), start_y + (IMG_SIZE / 2)]);
-    const [ghost_start_x, ghost_start_y] = ghost.pos;
-    const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+    const [startX, startY] = this.snaccman.pos;
+    const snaccmanCenter = this.game.wrapPos([startX + (IMG_SIZE / 2), startY + (IMG_SIZE / 2)]);
+    const [ghostStartX, ghostStartY] = ghost.pos;
+    const ghostCenter = this.game.wrapPos([ghostStartX + (IMG_SIZE / 2), ghostStartY + (IMG_SIZE / 2)]);
     const snaccmanCell = this.game.getCellAtPos(snaccmanCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
     const path = shortestPath(snaccmanCell, ghostCell);
@@ -403,10 +421,10 @@ class Game extends React.Component {
     }
   }
   calculateRespawnPath(ghost) {
-    const [start_x, start_y] = this.respawn_location;
-    const respawnCenter = this.game.wrapPos([start_x + (IMG_SIZE / 2), start_y + (IMG_SIZE / 2)]);
-    const [ghost_start_x, ghost_start_y] = ghost.pos;
-    const ghostCenter = this.game.wrapPos([ghost_start_x + (IMG_SIZE / 2), ghost_start_y + (IMG_SIZE / 2)]);
+    const [startX, startY] = this.respawnLocation;
+    const respawnCenter = this.game.wrapPos([startX + (IMG_SIZE / 2), startY + (IMG_SIZE / 2)]);
+    const [ghostStartX, ghostStartY] = ghost.pos;
+    const ghostCenter = this.game.wrapPos([ghostStartX + (IMG_SIZE / 2), ghostStartY + (IMG_SIZE / 2)]);
     const respawnCell = this.game.getCellAtPos(respawnCenter);
     const ghostCell = this.game.getCellAtPos(ghostCenter);
     const path = shortestPath(respawnCell, ghostCell);
@@ -429,12 +447,12 @@ class Game extends React.Component {
     }
   }
   inGhostRegion(entity) {
-    const [start_x, start_y] = this.ghostRegion[0];
-    const [end_x, end_y] = this.ghostRegion[1];
-    const [entity_start_x, entity_start_y] = entity.pos;
-    const entityCenter = this.game.wrapPos([entity_start_x + (IMG_SIZE / 2), entity_start_y + (IMG_SIZE / 2)]);
-    return (entityCenter[0] >= start_x && entityCenter[0] <= end_x &&
-      entityCenter[1] >= start_y && entityCenter[1] <= end_y); //center of object is inside the range
+    const [startX, startY] = this.ghostRegion[0];
+    const [endX, endY] = this.ghostRegion[1];
+    const [entityStartX, entityStartY] = entity.pos;
+    const entityCenter = this.game.wrapPos([entityStartX + (IMG_SIZE / 2), entityStartY + (IMG_SIZE / 2)]);
+    return (entityCenter[0] >= startX && entityCenter[0] <= endX &&
+      entityCenter[1] >= startY && entityCenter[1] <= endY); //center of object is inside the range
 
   }
 
@@ -477,18 +495,18 @@ class Game extends React.Component {
   drawScorePopup() {
 
     const scoreText = this.display[0];
-    let [center_x, center_y] = this.display[1];
-    center_x *= PIXEL_SIZE;
-    center_y *= PIXEL_SIZE;
-    center_x += PADDING;
-    center_y += PADDING;
+    let [centerX, centerY] = this.display[1];
+    centerX *= PIXEL_SIZE;
+    centerY *= PIXEL_SIZE;
+    centerX += PADDING;
+    centerY += PADDING;
     this.ctx.textAlign = "center";
     this.ctx.font = FONT_SMALL;
     this.ctx.beginPath();
     this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
     this.ctx.fillStyle = TEXT_COLOR;
-    this.ctx.fillText(scoreText, center_x, center_y - 5);
-    this.ctx.strokeText(scoreText, center_x, center_y - 5);
+    this.ctx.fillText(scoreText, centerX, centerY - 5);
+    this.ctx.strokeText(scoreText, centerX, centerY - 5);
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.font = FONT;
     this.ctx.textAlign = "left";
@@ -591,42 +609,42 @@ class Game extends React.Component {
   }
 
   drawCell(x, y) {
-    const [x_start, y_start] = this.game.getStartPositionForCell(x, y);
-    const [x_end, y_end] = this.game.getEndPositionForCell(x, y);
+    const [xStart, yStart] = this.game.getStartPositionForCell(x, y);
+    const [xEnd, yEnd] = this.game.getEndPositionForCell(x, y);
     //draw the walls if they can't move in that direction
     const cell = this.game.getCell(x, y);
 
     if (!cell.canMoveUp()) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x_start, y_start);
-      this.ctx.lineTo(x_end, y_start);
+      this.ctx.moveTo(xStart, yStart);
+      this.ctx.lineTo(xEnd, yStart);
       this.ctx.stroke();
       this.ctx.closePath();
     }
     if (!cell.canMoveRight()) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x_end, y_start);
-      this.ctx.lineTo(x_end, y_end);
+      this.ctx.moveTo(xEnd, yStart);
+      this.ctx.lineTo(xEnd, yEnd);
       this.ctx.stroke();
       this.ctx.closePath();
     }
     if (!cell.canMoveDown()) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x_start, y_end);
-      this.ctx.lineTo(x_end, y_end);
+      this.ctx.moveTo(xStart, yEnd);
+      this.ctx.lineTo(xEnd, yEnd);
       this.ctx.stroke();
       this.ctx.closePath();
     }
     if (!cell.canMoveLeft()) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x_start, y_start);
-      this.ctx.lineTo(x_start, y_end);
+      this.ctx.moveTo(xStart, yStart);
+      this.ctx.lineTo(xStart, yEnd);
       this.ctx.stroke();
       this.ctx.closePath();
     }
     if(!cell.canMoveDown() && !cell.canMoveLeft() && !cell.canMoveUp() && !cell.canMoveRight()){
       this.ctx.beginPath();
-      this.ctx.fillRect(x_start, y_start, x_end-x_start+2, y_end - y_start+2);
+      this.ctx.fillRect(xStart, yStart, xEnd-xStart+2, yEnd - yStart+2);
       this.ctx.closePath();
     }
   }
@@ -634,7 +652,7 @@ class Game extends React.Component {
   drawSnaccman() {
     if (this.lives <= 0) return;
     //get position
-    const [x_start, y_start] = this.game.getStartPositionForCell(...this.snaccman.pos);
+    const [xStart, yStart] = this.game.getStartPositionForCell(...this.snaccman.pos);
     let direction = "right"; //default
     switch (this.snaccman.velocity.join(",")) {
       case "1,0":
@@ -669,10 +687,10 @@ class Game extends React.Component {
     }
 
     const img = this.isSuper ? IMAGES.snaccman["super"][direction][imgNumber] : IMAGES.snaccman[direction][imgNumber];
-    this.drawSprite(img, x_start, y_start, this.snaccman);
+    this.drawSprite(img, xStart, yStart, this.snaccman);
   }
   drawGhost(ghost, idx) { //idx = which color ghost
-    const [x_start, y_start] = this.game.getStartPositionForCell(...ghost.pos);
+    const [xStart, yStart] = this.game.getStartPositionForCell(...ghost.pos);
     let img;
 
     if (ghost.dead) { //eyeball sprite if dead
@@ -683,7 +701,7 @@ class Game extends React.Component {
     } else { //get the right color ghost
       img = IMAGES.ghost.color[idx];
     }
-    this.drawSprite(img, x_start, y_start, ghost);
+    this.drawSprite(img, xStart, yStart, ghost);
   }
 
   drawSprite(img, x, y, entity) {
