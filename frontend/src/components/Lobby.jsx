@@ -35,13 +35,15 @@ class Lobby extends React.Component {
 
     render() {
    
-        let startButton = this.state.playerNumber === 0 ? <button onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
+        let startButton = this.state.playerNumber == 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
 
         return (
             <div>
                 <h1 className="welcome" style={{color:'white'}}> Mrs. Snaccman </h1>
                 <h1 style={{ color: 'white' }}> {this.state.message} </h1>
-                {startButton}
+                <div className="button-fix">
+                    {startButton}
+                </div>
             </div>
         );
     }
