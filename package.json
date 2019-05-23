@@ -30,10 +30,6 @@
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "axios": "^0.18.0",
-<<<<<<< HEAD
-    "bcrypt": "^3.0.6",
-=======
->>>>>>> 1c3168ccc75d04a305167aa1526f5b0944626f04
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "config": "^3.1.0",

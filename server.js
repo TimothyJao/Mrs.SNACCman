@@ -25,9 +25,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
     var roomno = 1;
     io.on('connection', function (socket) {
+        /*
+        join lobby function: If value is -1 create a new room
+        if value exists (check io.nsps['/'].adapter.rooms) use socket.join to bring them in
+        else throw them an error message and bring them back to welcome page
+        */
         console.log('User Connected');
+        console.log(io.nsps['/'].adapter.rooms)
         if (io.nsps['/'].adapter.rooms["room-" + roomno] && io.nsps['/'].adapter.rooms["room-" + roomno].length > 4) roomno++;
         socket.join("room-" + roomno);
+        /*
+        const roomno = Math.floor(Math.rand() * 10000)
+        ssocket.join("room-" + roomno);
+        */
+
         let clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
         
         console.log('room-' + roomno);
@@ -73,18 +84,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
             if (userNum == 0) {
 
-                let message = "You are Mrs.Snaccman! There are " + numClients + " player(s) in your lobby";
+                let message = "You are Mrs.Snaccman! You are with " + [numClients-1] + " other player(s)";
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum });
 
             } else {
 
-                let message = "You are a ghost! " + numClients + " player(s) is currently in your lobby";
+                let message = "You are a ghost! You are with " + [numClients-1] + " other player(s)";
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum });
             }
             userNum++;
         }
     }
-// }
+
 
 app.get('/', (req, res) => res.send('Hello, world!'));
 
