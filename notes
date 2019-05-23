@@ -1,0 +1,8 @@
+If we pull:
+npm install
+npm install --prefix frontend
+
+In general:
+npm start (backend server)
+npm run frontend (frontend server and webpack)
+
