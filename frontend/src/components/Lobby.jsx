@@ -18,9 +18,7 @@ class Lobby extends React.Component {
         this.playGame = this.playGame.bind(this);
     }
 
-    componentWillMount() {
-
-        console.log("test")
+    componentDidMount() {
         socket.on('connectToRoom', (data) => {
             this.setState({ message: data.message, playerNumber: data.playerNumber})
         });

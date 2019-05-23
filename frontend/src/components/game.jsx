@@ -264,6 +264,7 @@ class Game extends React.Component {
     if (!this.delay) {
       this.display = [];
       if(this.frame % FPS === 0) this.bonus -= 10;
+      this.bonus = Math.max(this.bonus, 0); //Cap at 0
       if (this.isSuper) {
         this.isSuper--;
         if (this.isSuper === 0) {
@@ -420,7 +421,7 @@ class Game extends React.Component {
     this.ghosts.forEach(ghost => {
       const [ghostStartX, ghostStartY] = ghost.pos;
       const ghostCenter = this.game.wrapPos([ghostStartX + (IMG_SIZE / 2), ghostStartY + (IMG_SIZE / 2)]);
-      if (distance(center, ghostCenter) < IMG_SIZE) {
+      if (distance(center, ghostCenter) < IMG_SIZE - 2*MOVE_SPEED) {
         if (ghost.dead) {
           //nothing, ghost is dead
         } else if (this.isSuper) {
@@ -434,7 +435,7 @@ class Game extends React.Component {
           killed = true;
         }
       }
-      if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE) {
+      if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE - 2*MOVE_SPEED) {
         if (this.game.getCellAtPos(this.respawnLocation) === this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
