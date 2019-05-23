@@ -33,3 +33,13 @@ body {
     padding: 0;
     margin: 0;
 }
+
+.lobbyMessages{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.message{
+    color: white;
+}
