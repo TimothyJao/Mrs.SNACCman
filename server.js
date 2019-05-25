@@ -74,11 +74,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
             socket.to('game-1').emit('getPlayerData', { frame: data.frame, entity: data.entity, player: data.player})
         });
 
-        /* should return a pojo of all players */
-        // socket.on('getPlayers', (player) => {
-
-        // })
-        
         socket.on('disconnect', () => {
             console.log('user disconnected')
             sendMessage(clients, io)
