@@ -8,23 +8,6 @@ export const url =
 export const socket = openSocket(url);
 
 class Lobby extends React.Component {
-<<<<<<< HEAD
-  constructor(props) {
-    super(props);
-    this.state = {
-      message: "",
-      playerNumber: -1,
-      players: "",
-      endpoint: url
-    };
-    this.playGame = this.playGame.bind(this);
-  }
-
-  componentDidMount() {
-    socket.on("connectToRoom", data => {
-      this.setState({ message: data.message, playerNumber: data.playerNumber });
-    });
-=======
     constructor(props) {
         super(props);
         this.state = {
@@ -41,7 +24,6 @@ class Lobby extends React.Component {
         socket.on('connectToRoom', (data) => {
             this.setState({ message: data.message, playerNumber: data.userNum, roomIdMessage: data.roomIdMessage })
         });
->>>>>>> 56f12481ce0da058883dea17ce86784eee9ba8e2
 
     socket.on("sendPlayers", players => {
       this.setState({ players: Object.keys(players) });
@@ -56,39 +38,10 @@ class Lobby extends React.Component {
   }
 
   playGame() {
-    socket.emit("getPrompt", "");
   }
 
-<<<<<<< HEAD
-  render() {
-    let startButton =
-      this.state.playerNumber === 0 ? (
-        <button
-          className="start-btn"
-          onClick={this.playGame}
-          style={{ backgroundColor: "white" }}
-        >
-          {" "}
-          Start Game{" "}
-        </button>
-      ) : (
-        " "
-      );
-
-    return (
-      <div>
-        <h1 className="welcome" style={{ color: "white" }}>
-          {" "}
-          Mrs. Snaccman{" "}
-        </h1>
-        <h1 style={{ color: "white" }}> {this.state.message} </h1>
-        <div className="button-fix">{startButton}</div>
-      </div>
-    );
-  }
-=======
     render() {
-   
+        debugger
         let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
         return (
             <div>
@@ -112,7 +65,6 @@ class Lobby extends React.Component {
             3) server.js allows user to join room
     */
 
->>>>>>> 56f12481ce0da058883dea17ce86784eee9ba8e2
 }
 
 export default withRouter(Lobby);
