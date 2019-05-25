@@ -25,6 +25,7 @@ class Game extends React.Component {
     this.state = {
       endpoint: url
     };
+    this.scaleCanvas = this.scaleCanvas.bind(this);
   }
 
   receiveData(data) {
@@ -115,7 +116,10 @@ class Game extends React.Component {
   }
   componentDidMount() {
     //set up drawing context
-    this.ctx = document.querySelector("#game-canvas").getContext("2d");
+    const canvas = document.querySelector("#game-canvas");
+    this.scaleCanvas();
+    window.addEventListener("resize",this.scaleCanvas);
+    this.ctx = canvas.getContext("2d");
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.strokeStyle = WALL_COLOR;
     this.ctx.font = FONT;
@@ -148,13 +152,21 @@ class Game extends React.Component {
     });
 
     socket.on('getPlayerData', (data) => {
-      this.receiveData(data)
+      this.receiveData(data);
     });
   }
   componentWillUnmount() {
     //cleanup
     clearInterval(this.intervalId);
     document.removeEventListener("keydown", this.handleInput);
+    window.removeEventListener("resize", this.scaleCanvas);
+  }
+  scaleCanvas(){
+    const canvas = document.querySelector("#game-canvas");
+    const WIDTH = this.game.GameWidth();
+    const HEIGHT = this.game.GameHeight();
+    const scale = Math.min(window.innerHeight / HEIGHT, window.innerWidth / WIDTH) ;
+    canvas.style.cssText = `width: ${WIDTH * scale}px; height: ${HEIGHT * scale}px;`;
   }
   handleInput(e) {
     let entity;
@@ -264,6 +276,7 @@ class Game extends React.Component {
     if (!this.delay) {
       this.display = [];
       if(this.frame % FPS === 0) this.bonus -= 10;
+      this.bonus = Math.max(this.bonus, 0); //Cap at 0
       if (this.isSuper) {
         this.isSuper--;
         if (this.isSuper === 0) {
@@ -420,7 +433,7 @@ class Game extends React.Component {
     this.ghosts.forEach(ghost => {
       const [ghostStartX, ghostStartY] = ghost.pos;
       const ghostCenter = this.game.wrapPos([ghostStartX + (IMG_SIZE / 2), ghostStartY + (IMG_SIZE / 2)]);
-      if (distance(center, ghostCenter) < IMG_SIZE) {
+      if (distance(center, ghostCenter) < IMG_SIZE - 2*MOVE_SPEED) {
         if (ghost.dead) {
           //nothing, ghost is dead
         } else if (this.isSuper) {
@@ -434,7 +447,7 @@ class Game extends React.Component {
           killed = true;
         }
       }
-      if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE) {
+      if (ghost.dead && distance(ghostCenter, this.respawnLocation) < IMG_SIZE - 2*MOVE_SPEED) {
         if (this.game.getCellAtPos(this.respawnLocation) === this.game.getCellAtPos(ghostCenter)) {
           ghost.dead = false;
           ghost.pos = ghost.initialPos;
