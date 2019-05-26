@@ -41,7 +41,7 @@ io.on('connection', function (socket) {
         } else if(!io.nsps['/'].adapter.rooms['room-' + value]){
             socket.emit('lobbyFound', false)
         } else{
-            socket.emit('lobbyFound', false)
+            socket.emit('lobbyFound', true)
         }
     })
     */
