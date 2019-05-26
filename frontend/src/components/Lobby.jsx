@@ -21,27 +21,22 @@ class Lobby extends React.Component {
     }
 
     componentDidMount() {
-        socket.on('connectToRoom', (data) => {
-            this.setState({ message: data.message, playerNumber: data.userNum, roomIdMessage: data.roomIdMessage })
-        });
-
-    socket.on("sendPlayers", players => {
-      this.setState({ players: Object.keys(players) });
-      this.props.history.push({
-        pathname: "/Game",
-        state: {
-          players: this.state.players,
-          playerNumber: this.state.playerNumber
-        }
+      socket.on('connectToRoom', (data) => {
+          this.setState({ message: data.message, playerNumber: data.playerNumber, roomIdMessage: data.roomIdMessage })
       });
+
+      socket.on("sendPlayers", players => {
+        debugger
+      this.setState({ players: Object.keys(players) });
+      this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
     });
   }
 
   playGame() {
+    socket.emit('getPrompt', "")
   }
 
     render() {
-        debugger
         let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
         return (
             <div>
