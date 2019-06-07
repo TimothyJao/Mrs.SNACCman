@@ -33,8 +33,8 @@ class Welcome extends React.Component {
         <ul>
           <li onClick={this.singlePlayer}><img src="images/right-1.png" />Single Player</li>
           <li onClick={this.createLobby}><img src="images/left-1.png" />Create Lobby</li>
-          <li onClick={this.randomLobby}><img src="images/left-1.png" />Join Random Lobby</li>
-          <li onClick={this.joinLobby}><img src="images/right-1.png" />
+          <li onClick={this.randomLobby}><img src="images/right-1.png" />Join Random Lobby</li>
+          <li onClick={this.joinLobby}><img src="images/left-1.png" />
             Join Lobby with ID
             <input type="number" id="lobby-id" value={this.state.lobbyId} onClick={e=>e.stopPropagation()} onChange={(e)=>{
               e.preventDefault();
