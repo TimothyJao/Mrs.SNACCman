@@ -1,11 +1,7 @@
 import React from "react";
-import openSocket from "socket.io-client";
+import { url } from './welcome'
 import { withRouter } from "react-router-dom";
-const production = "https://mrs-snaccman.herokuapp.com";
-const development = "http://localhost:5000/";
-export const url =
-  process.env.NODE_ENV === "development" ? development : production;
-export const socket = openSocket(url);
+import { socket } from "./welcome"
 
 class Lobby extends React.Component {
     constructor(props) {
@@ -26,15 +22,14 @@ class Lobby extends React.Component {
       });
 
       socket.on("sendPlayers", players => {
-        debugger
-      this.setState({ players: Object.keys(players) });
-      this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
-    });
-  }
+        this.setState({ players: Object.keys(players) });
+        this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
+      });
+    }
 
-  playGame() {
-    socket.emit('getPrompt', "")
-  }
+    playGame() {
+      socket.emit('getPrompt', "")
+    }
 
     render() {
         let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";

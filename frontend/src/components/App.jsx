@@ -7,8 +7,8 @@ import Welcome from "./welcome";
 const App = () => {
   return (
     <Switch>
-      <Route exact path="/" component={Lobby} />
-      <Route exact path="/welcome" component={Welcome} />
+      <Route exact path="/" component={Welcome} />
+      <Route exact path="/lobby" component={Lobby} />
       <Route exact path="/game" render={() => <Game />} />
     </Switch>
   );

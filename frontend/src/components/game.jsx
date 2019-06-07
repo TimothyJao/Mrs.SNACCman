@@ -3,14 +3,14 @@ import { withRouter } from 'react-router-dom';
 import {BACKGROUND_COLOR, WALL_COLOR, WALL_FLASH_COLOR, WALL_FILL_FLASH_COLOR, WALL_SIZE, WALL_STROKE, FONT, FPS, MOVE_SPEED,
 IMG_SIZE, PIXEL_SIZE, PADDING, TEXT_COLOR, IMAGES, SPRITE_DURATION, SPRITE_PIXEL_SIZE,
 PELLET_COLOR, PELLET_SIZE, BIG_PELLET_SIZE, FONT_SMALL, ALT_PELLET_COLOR, WALL_FILL_COLOR, TEXT_OUTLINE_COLOR } from "../util/constants";
-import {url} from './Lobby'
+import {url} from './welcome'
 import { BIG_PELLET, PELLET, SNACCMAN, GHOST } from "../classes/Entity";
 import Grid from "../classes/Grid";
 import Ghost from "../classes/Ghost";
 import Snaccman from "../classes/Snaccman";
 import { GameUtil, distance, shortestPath, random } from "../util/game_util";
 // import openSocket from 'socket.io-client';
-import {socket} from "./Lobby";
+import {socket} from "./welcome";
 // const socket = openSocket('http://localhost:5000');
 
 const UP = [0,-1];
