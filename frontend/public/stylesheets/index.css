@@ -57,3 +57,12 @@ a {
 .img-header a {
   position: relative;
 }
+.lobbyMessages{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.message{
+    color: white;
+}

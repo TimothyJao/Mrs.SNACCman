@@ -8,6 +8,7 @@ export const url =
 export const socket = openSocket(url);
 
 class Lobby extends React.Component {
+<<<<<<< HEAD
   constructor(props) {
     super(props);
     this.state = {
@@ -23,23 +24,37 @@ class Lobby extends React.Component {
     socket.on("connectToRoom", data => {
       this.setState({ message: data.message, playerNumber: data.playerNumber });
     });
+=======
+    constructor(props) {
+        super(props);
+        this.state = {
+            message: "",
+            playerNumber: -1,
+            players: "",
+            endpoint: url,
+            roomIdMessage: ""
+        };
+        this.playGame = this.playGame.bind(this);
+    }
 
-    socket.on("sendPlayers", players => {
-      this.setState({ players: Object.keys(players) });
-      this.props.history.push({
-        pathname: "/Game",
-        state: {
-          players: this.state.players,
-          playerNumber: this.state.playerNumber
-        }
+    componentDidMount() {
+      socket.on('connectToRoom', (data) => {
+          this.setState({ message: data.message, playerNumber: data.playerNumber, roomIdMessage: data.roomIdMessage })
       });
+>>>>>>> b5c7fa854722ca8f9e0bf4094d52760a64d5874a
+
+      socket.on("sendPlayers", players => {
+        debugger
+      this.setState({ players: Object.keys(players) });
+      this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
     });
   }
 
   playGame() {
-    socket.emit("getPrompt", "");
+    socket.emit('getPrompt', "")
   }
 
+<<<<<<< HEAD
   render() {
     let startButton =
       this.state.playerNumber === 0 ? (
@@ -66,6 +81,32 @@ class Lobby extends React.Component {
       </div>
     );
   }
+=======
+    render() {
+        let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
+        return (
+            <div>
+                <h1 className="welcome" style={{color:'white'}}> Mrs. Snaccman </h1>
+                <div className="lobbyMessages">
+                    <h1 className="message"> {this.state.message} </h1>
+                    <h1 className="message"> {this.state.roomIdMessage} </h1>
+                </div>
+                    
+                <div className="button-fix">
+                    {startButton}
+                </div>
+            </div>
+        );
+    }
+
+    /*
+        To set up ID rooms:
+            1) window.crypto.getRandomValues(randomBuffer) to make random ID for a room
+            2) emit code to server.js
+            3) server.js allows user to join room
+    */
+
+>>>>>>> b5c7fa854722ca8f9e0bf4094d52760a64d5874a
 }
 
 export default withRouter(Lobby);

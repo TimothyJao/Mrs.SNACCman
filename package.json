@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
+    "webpack": "webpack --watch --mode=development",
     "frontend": "npm start --prefix frontend",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend",
+    "postinstall": "webpack"
   },
   "engines": {
     "node": "10.13.0",
@@ -28,6 +30,7 @@
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "axios": "^0.18.0",
+    "babel-loader": "^8.0.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "config": "^3.1.0",
@@ -36,6 +39,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.7",
     "nodeman": "^1.1.2",
+    "nodemon": "^1.19.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "react": "^16.8.6",
@@ -47,7 +51,10 @@
     "redux-thunk": "^2.3.0",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
-    "validator": "^10.11.0"
+    "validator": "^10.11.0",
+    "webpack": "^4.29.6"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "webpack-cli": "^3.3.2"
+  }
 }
