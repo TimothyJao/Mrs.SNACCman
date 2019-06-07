@@ -4,6 +4,23 @@ import { withRouter } from "react-router-dom";
 import { socket } from "./welcome"
 
 class Lobby extends React.Component {
+<<<<<<< HEAD
+  constructor(props) {
+    super(props);
+    this.state = {
+      message: "",
+      playerNumber: -1,
+      players: "",
+      endpoint: url
+    };
+    this.playGame = this.playGame.bind(this);
+  }
+
+  componentDidMount() {
+    socket.on("connectToRoom", data => {
+      this.setState({ message: data.message, playerNumber: data.playerNumber });
+    });
+=======
     constructor(props) {
         super(props);
         this.state = {
@@ -20,6 +37,7 @@ class Lobby extends React.Component {
       socket.on('connectToRoom', (data) => {
           this.setState({ message: data.message, playerNumber: data.playerNumber, roomIdMessage: data.roomIdMessage })
       });
+>>>>>>> b5c7fa854722ca8f9e0bf4094d52760a64d5874a
 
       socket.on("sendPlayers", players => {
         this.setState({ players: Object.keys(players) });
@@ -31,6 +49,34 @@ class Lobby extends React.Component {
       socket.emit('getPrompt', "")
     }
 
+<<<<<<< HEAD
+  render() {
+    let startButton =
+      this.state.playerNumber === 0 ? (
+        <button
+          className="start-btn"
+          onClick={this.playGame}
+          style={{ backgroundColor: "white" }}
+        >
+          {" "}
+          Start Game{" "}
+        </button>
+      ) : (
+        " "
+      );
+
+    return (
+      <div>
+        <h1 className="welcome" style={{ color: "white" }}>
+          {" "}
+          Mrs. Snaccman{" "}
+        </h1>
+        <h1 style={{ color: "white" }}> {this.state.message} </h1>
+        <div className="button-fix">{startButton}</div>
+      </div>
+    );
+  }
+=======
     render() {
         let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame} style={{ backgroundColor: 'white' }}> Start Game </button>: " ";
         return (
@@ -55,6 +101,7 @@ class Lobby extends React.Component {
             3) server.js allows user to join room
     */
 
+>>>>>>> b5c7fa854722ca8f9e0bf4094d52760a64d5874a
 }
 
 export default withRouter(Lobby);
