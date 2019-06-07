@@ -19,17 +19,28 @@ class Welcome extends React.Component {
 
           <h2 style={{ color: "white" }}>
             {"  "}
+            <a href="#/game">
+              {" "} 
             <img className="header-img" src="images/left-1.png" /> Join Random
-            Lobby
+              Lobby {" "}
+            </a>
           </h2>
+
           <h2 style={{ color: "white" }}>
             {" "}
+            <a href="#/game">
+              {" "} 
             <img className="header-img" src="images/right-1.png" /> Join Lobby
-            with ID
+            with ID {" "}
+            </a>
           </h2>
+          
           <h2 style={{ color: "white" }}>
             {" "}
-            <img className="header-img" src="images/left-1.png" /> Create Lobby
+            <a href="#/game">
+              {" "} 
+              <img className="header-img" src="images/left-1.png" /> Create Lobby {" "}
+            </a>
           </h2>
         </div>
       </div>

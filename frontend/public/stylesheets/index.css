@@ -28,7 +28,6 @@
 }
 
 body {
-<<<<<<< HEAD
   background-color: black;
   padding: 0;
   margin: 0;
@@ -58,19 +57,3 @@ a {
 .img-header a {
   position: relative;
 }
-=======
-    background-color: black;
-    padding: 0;
-    margin: 0;
-}
-
-.lobbyMessages{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.message{
-    color: white;
-}
->>>>>>> 56f12481ce0da058883dea17ce86784eee9ba8e2
