@@ -29,22 +29,26 @@ io.on('connection', function (socket) {
     join lobby function: If value is -1 create a new room
     if value exists (check io.nsps['/'].adapter.rooms) use socket.join to bring them in
     else throw them an error message and bring them back to welcome page
-    
+    */
+
     socket.on('joinLobby', (value)=>{
-        if(value === -1){
+        if (value === -1 || (value === -2 && io.nsps['/'].adapter.rooms.length === 0)){
             let roomno = 0;
-            while (roomno < 1000){
-                const roomno = Math.floor(Math.rand() * 10000)
-            }
+            const roomno = Math.floor(Math.rand() * 9000) + 1000
             socket.join("room-" + roomno);
-            socket.emit('lobbyFound', true)
-        } else if(!io.nsps['/'].adapter.rooms['room-' + value]){
-            socket.emit('lobbyFound', false)
+            socket.emit('lobbyFound', true);
+        } else if(value === -2){
+            const roomno = Math.floor(Math.rand() * io.nsps['/'].adapter.rooms.length === 0)
+            socket.join("room-" + roomno);
+            socket.emit('lobbyFound', true);
+        } else if(io.nsps['/'].adapter.rooms['room-' + value]){
+            socket.join("room-" + value);
+            socket.emit('lobbyFound', true);
         } else{
-            socket.emit('lobbyFound', true)
+            socket.emit('lobbyFound', false);
         }
     })
-    */
+
     console.log('User Connected');
     if (io.nsps['/'].adapter.rooms["room-" + roomno] && io.nsps['/'].adapter.rooms["room-" + roomno].length > 4) roomno++;
     socket.join("room-" + roomno);
