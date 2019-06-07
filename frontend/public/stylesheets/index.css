@@ -66,3 +66,23 @@ a {
 .message{
     color: white;
 }
+
+#welcome{
+  color: white;
+}
+#welcome h1{
+
+}
+#welcome ul{
+  margin: 0;
+  padding: 0;
+}
+#welcome li{
+  padding: 0;
+  margin: 0;
+  padding-left: 10px;
+}
+#welcome li img{
+  width: 24px;
+  height: 24px;
+}
