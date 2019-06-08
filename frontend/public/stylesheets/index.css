@@ -82,6 +82,7 @@ a {
   padding: 0;
   margin: 0;
   padding: 10px;
+  cursor: pointer;
 }
 #welcome li img{
   width: 24px;
@@ -92,4 +93,56 @@ a {
 }
 #welcome li:hover img{
   visibility: visible;
+}
+#welcome li:nth-child(2n):hover img{
+  animation: left .5s infinite;
+}
+#welcome li:nth-child(2n+1):hover img{
+  animation: right .5s infinite;
+}
+#welcome #welcome-input{
+  margin-top: 10px;
+  margin-left: 44px;
+}
+#welcome ul li.not-pointer{
+  cursor: default;
+}
+#welcome input{
+}
+#welcome button{
+  cursor:pointer;
+}
+@keyframes left{
+  0% {
+    content: url(/images/left-1.png);
+  }
+  25% {
+    content: url(/images/left-2.png);
+  }
+  50% {
+    content: url(/images/left-1.png);
+  }
+  75% {
+    content: url(/images/left-3.png);
+  }
+  100% {
+    content: url(/images/left-1.png);
+  }
+}
+@keyframes right{
+  0% {
+    content: url(/images/right-1.png);
+  }
+  25% {
+    content: url(/images/right-2.png);
+  }
+  50% {
+    content: url(/images/right-1.png);
+  }
+  75% {
+    content: url(/images/right-3.png);
+  }
+  100% {
+    content: url(/images/right-1.png);
+  }
 }
