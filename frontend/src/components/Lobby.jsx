@@ -47,14 +47,6 @@ class Lobby extends React.Component {
             </div>
         );
     }
-
-    /*
-        To set up ID rooms:
-            1) window.crypto.getRandomValues(randomBuffer) to make random ID for a room
-            2) emit code to server.js
-            3) server.js allows user to join room
-    */
-
 }
 
 export default withRouter(Lobby);

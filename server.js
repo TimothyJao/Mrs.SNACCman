@@ -23,77 +23,71 @@ app.get("/", (req, res) => {
   res.sendFile(path.resolve("../frontend/public/index.html"));
 });
 
-var roomno = 1;
+let roomno;
+let clients;
 io.on('connection', function (socket) {
+    //setup for socket
+    console.log('User Connected');
+    
     /*
     join lobby function: If value is -1 create a new room
     if value exists (check io.nsps['/'].adapter.rooms) use socket.join to bring them in
     else throw them an error message and bring them back to welcome page
-    */
-
-    socket.on('joinLobby', (value)=>{
+    */      
+    socket.on('joinLobby', (value) => {
         if (value === -1 || (value === -2 && io.nsps['/'].adapter.rooms.length === 0)){
-            let roomno = 0;
-            const roomno = Math.floor(Math.rand() * 9000) + 1000
+            roomno = Math.floor(Math.random() * 9000) + 1000
             socket.join("room-" + roomno);
             socket.emit('lobbyFound', true);
+            sendMessage(io, roomno)
         } else if(value === -2){
-            const roomno = Math.floor(Math.rand() * io.nsps['/'].adapter.rooms.length === 0)
+            let roomno = Math.floor(Math.random() * io.nsps['/'].adapter.rooms.length === 0)
             socket.join("room-" + roomno);
             socket.emit('lobbyFound', true);
-        } else if(io.nsps['/'].adapter.rooms['room-' + value]){
+            sendMessage(io, roomno)
+        } else if (io.nsps['/'].adapter.rooms['room-' + value]) {
+            roomno = value;
             socket.join("room-" + value);
             socket.emit('lobbyFound', true);
+            sendMessage(io, roomno)
         } else{
             socket.emit('lobbyFound', false);
         }
-    })
-
-    console.log('User Connected');
-    if (io.nsps['/'].adapter.rooms["room-" + roomno] && io.nsps['/'].adapter.rooms["room-" + roomno].length > 4) roomno++;
-    socket.join("room-" + roomno);
-
-    console.log(io.nsps['/'].adapter.rooms)
-    let clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
-    
-    console.log('room-' + roomno);
-
-    sendMessage(clients, io)
-    
-    
+    })    
 
     socket.on('getPrompt', () => {
-        io.in('room-' + roomno).emit("sendPlayers", clients)
+        let players = Object.assign({}, clients)
         for (let clientId in clients) {
             let clientSocket = io.sockets.connected[clientId];
             clientSocket.leave('room-' + roomno)
             clientSocket.join('game-' + roomno)
-            console.log("You are joining this game-" + roomno)
+            console.log("You are joining game-" + roomno)
         }
+        io.in('game-' + roomno).emit("sendPlayers", players)
     });
 
     /* should return a pojo of a player   */
     socket.on('getPlayer', (data) => {
         // want to dispatch all changes to all players
-        socket.to('game-1').emit('getPlayerData', { frame: data.frame, entity: data.entity, player: data.player})
+        socket.to('game-' + roomno).emit('getPlayerData', { frame: data.frame, entity: data.entity, player: data.player})
     });
 
     socket.on('disconnect', () => {
         console.log('user disconnected')
-        sendMessage(clients, io)
+        sendMessage(io, roomno)
     });
 
     
 })
 
-    sendMessage = (clients, io) => {
+    sendMessage = (io, roomno) => {
+        clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
+        console.log('room-' + roomno);
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
         let userNum = 0;
-        for (let clientId in clients) {
+        for (let clientId in clients) { 
             let clientSocket = io.sockets.connected[clientId];
-
             if (userNum == 0) {
-
                 let message = "You are Mrs.Snaccman! You are with " + [numClients-1] + " other player(s)";
                 let roomIdMessage = "Room ID:" + roomno;
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum, roomIdMessage: roomIdMessage });

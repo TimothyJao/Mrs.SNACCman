@@ -9,47 +9,58 @@ export const socket = openSocket(url);
 
 
 class Welcome extends React.Component {
-
-  createLobby(){
-    socket.emit('joinLobby', -1);
-    this.props.history.push("/lobby");
+  constructor(props) {
+    super(props);
+    this.state = { lobbyId: 1000, found: false };
+    this.singlePlayer = this.singlePlayer.bind(this);
+    this.randomLobby = this.randomLobby.bind(this);
+    this.joinLobby = this.joinLobby.bind(this);
+    this.createLobby = this.createLobby.bind(this);
+  }
+  singlePlayer(e) {
+    e.preventDefault();
+    this.props.history.push("/game");
+  }
+  randomLobby(e) {
+    e.preventDefault();
+    socket.emit('joinLobby', -2)
+  }
+  joinLobby(e) {
+    e.preventDefault();
+    socket.emit('joinLobby', this.state.lobbyId)
+  }
+  createLobby(e) {
+    e.preventDefault();
+    socket.emit('joinLobby', -1)
   }
 
-  joinLobby(){
-    socket.emit('joinLobby', -1);
-    this.props.history.push("/lobby");
+  componentDidMount() {
+    socket.on('lobbyFound', found => {
+      if (found) { this.props.history.push("/lobby");}
+    });
   }
 
   render() {
     return (
-      <div>
-        <h1 style={{ color: "white" }}>Mrs.Snaccman</h1>
-        <br/>
-        <div className="img-header">
-          <h2 style={{ color: "white" }}>
-            <a href="#/game"> <img className="header-img" src="images/right-1.png" /> Single Player</a>
-          </h2>
-
-          <h2 style={{ color: "white" }}>
-            <a href="#/game"> 
-            <img className="header-img" src="images/left-1.png" /> Join Random
-              Lobby 
-            </a>
-          </h2>
-
-          <h2 style={{ color: "white" }}>
-            <a href="#/game">
-            <img className="header-img" src="images/right-1.png" /> Join Lobby with ID</a>
-          </h2>
-          
-          <h2 style={{ color: "white" }}>
-            <a href="#/game">
-              <img className="header-img" src="images/left-1.png" /> Create Lobby </a>
-          </h2>
-        </div>
+      <div id="welcome">
+        <h1>Mrs.Snaccman</h1>
+        <ul>
+          <li onClick={this.singlePlayer}><img src="images/right-1.png" />Single Player</li>
+          <li onClick={this.createLobby}><img src="images/left-1.png" />Create Lobby</li>
+          <li onClick={this.randomLobby}><img src="images/right-1.png" />Join Random Lobby</li>
+          <li onClick={this.joinLobby}><img src="images/left-1.png" />
+            Join Lobby with ID
+            <input type="number" id="lobby-id" value={this.state.lobbyId} onClick={e => e.stopPropagation()} onChange={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.setState({ lobbyId: e.target.value });
+            }} />
+          </li>
+        </ul>
       </div>
     );
   }
 }
 
 export default withRouter(Welcome);
+
