@@ -48,13 +48,17 @@ class Welcome extends React.Component {
           <li onClick={this.singlePlayer}><img src="images/right-1.png" />Single Player</li>
           <li onClick={this.createLobby}><img src="images/left-1.png" />Create Lobby</li>
           <li onClick={this.randomLobby}><img src="images/right-1.png" />Join Random Lobby</li>
-          <li onClick={this.joinLobby}><img src="images/left-1.png" />
+          <li className="not-pointer"><img src="images/left-1.png" />
             Join Lobby with ID
-            <input type="number" id="lobby-id" value={this.state.lobbyId} onClick={e => e.stopPropagation()} onChange={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.setState({ lobbyId: e.target.value });
-            }} />
+            <div id="welcome-input">
+              <input type="number" id="lobby-id" 
+              value={this.state.lobbyId}
+              onChange={(e)=>{
+                e.preventDefault();
+                this.setState({lobbyId: e.target.value});
+              }}/>
+              <button onClick={this.joinLobby}>Join</button>
+            </div>
           </li>
         </ul>
       </div>
