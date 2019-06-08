@@ -42,21 +42,6 @@ a {
   color: white;
 }
 
-.img-header a img {
-  display: none;
-}
-
-.img-header a:hover img,
-.img-header a:focus img {
-  display: inline-block;
-  position: absolute;
-  top: 0px;
-  left: -35px;
-}
-
-.img-header a {
-  position: relative;
-}
 .lobbyMessages{
     display: flex;
     flex-wrap: wrap;
@@ -95,10 +80,10 @@ a {
   visibility: visible;
 }
 #welcome li:nth-child(2n):hover img{
-  animation: left .5s infinite;
+  animation: left .4s infinite;
 }
 #welcome li:nth-child(2n+1):hover img{
-  animation: right .5s infinite;
+  animation: right .4s infinite;
 }
 #welcome #welcome-input{
   margin-top: 10px;
@@ -107,10 +92,47 @@ a {
 #welcome ul li.not-pointer{
   cursor: default;
 }
-#welcome input{
+#welcome input[type="number"]{
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  color: #ffffff;
+  font-family: 'Press Start 2P';
+  font-size: 16px;
+  text-align: right;
+  padding: 8px 8px;
+  outline: none;
+  border: 4px solid #ffffff;
+  background-color: #000000;
+}
+#welcome input[type="number"]::-webkit-outer-spin-button, 
+#welcome input[type="number"]::-webkit-inner-spin-button { 
+  margin-left: 20px;
+} 
+#welcome input[type="number"]:focus{
+  border-color: rgb(197,59,148);
 }
 #welcome button{
   cursor:pointer;
+  color: #ffffff;
+  font-family: 'Press Start 2P';
+  font-size: 16px;
+  padding: 8px 16px;
+  border: 4px solid #ffffff;
+  background-color: #000000;
+}
+#welcome button:hover{
+  color: rgb(197,59,148);
+}
+#welcome button:active{
+  outline:none;
+  background-color: rgb(197,59,148);
+  border-color: rgb(197,59,148);
+  color: #ffffff;
+}
+#welcome button:focus{
+  outline:none;
+  border-color: rgb(197,59,148);
 }
 @keyframes left{
   0% {
