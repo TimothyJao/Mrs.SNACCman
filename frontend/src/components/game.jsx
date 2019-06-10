@@ -17,7 +17,7 @@ const UP = [0,-1];
 const DOWN = [0,1];
 const LEFT = [-1, 0];
 const RIGHT = [1, 0];
-const SNAPSHOT_FREQUENCY = 5*FPS;
+const SNAPSHOT_FREQUENCY = 2*FPS;
 
 class Game extends React.Component {
   constructor(props) {
@@ -46,7 +46,7 @@ class Game extends React.Component {
   sendData(entity) {
     if(this.numberOfPlayers === 1) return; //no sockets on single player
     if(this.finished) return; //no sockets if the game is over
-    const data = { frame: this.frame+1, entity, player: this.currentPlayer };
+    const data = { frame: this.frame, entity, player: this.currentPlayer };
     socket.emit('getPlayer', data);
   }
 
@@ -247,7 +247,7 @@ class Game extends React.Component {
     });
   }
   purgeSnapshots(){
-    let latestFrame = this.sync.latestFrame[0];
+    let latestFrame = this.frame;
     this.sync.latestFrame.forEach(frame=>latestFrame=Math.min(latestFrame, frame));
     latestFrame = latestFrame - (latestFrame%SNAPSHOT_FREQUENCY);
     for(let frame = this.sync.earliestFrame; frame < latestFrame - SNAPSHOT_FREQUENCY; frame+=SNAPSHOT_FREQUENCY ){
@@ -293,30 +293,30 @@ class Game extends React.Component {
       //   break;
       case 38: //arrow up
       case 87: //W
-        // entity.bufferedVelocity = UP;
-        if(this.sync.inputs[this.frame+1] === undefined) this.sync.inputs[this.frame+1] = [];
-        this.sync.inputs[this.frame+1].push({player: this.currentPlayer, input: UP});
+        entity.bufferedVelocity = UP;
+        if(this.sync.inputs[this.frame] === undefined) this.sync.inputs[this.frame] = [];
+        this.sync.inputs[this.frame].push({player: this.currentPlayer, input: UP});
         this.sendData(entity);
         break;
       case 37: //arrow left
       case 65: //A
-        // entity.bufferedVelocity = LEFT;
-        if (this.sync.inputs[this.frame+1] === undefined) this.sync.inputs[this.frame+1] = [];
-        this.sync.inputs[this.frame+1].push({ player: this.currentPlayer, input: LEFT });
+        entity.bufferedVelocity = LEFT;
+        if (this.sync.inputs[this.frame] === undefined) this.sync.inputs[this.frame] = [];
+        this.sync.inputs[this.frame].push({ player: this.currentPlayer, input: LEFT });
         this.sendData(entity);
         break;
       case 40: //arrow down
       case 83: //S
-        // entity.bufferedVelocity = DOWN;
-        if (this.sync.inputs[this.frame+1] === undefined) this.sync.inputs[this.frame+1] = [];
-        this.sync.inputs[this.frame+1].push({ player: this.currentPlayer, input: DOWN });
+        entity.bufferedVelocity = DOWN;
+        if (this.sync.inputs[this.frame] === undefined) this.sync.inputs[this.frame] = [];
+        this.sync.inputs[this.frame].push({ player: this.currentPlayer, input: DOWN });
         this.sendData(entity);
         break;
       case 39: //arrow right
       case 68: //D
-        // entity.bufferedVelocity = RIGHT;
-        if (this.sync.inputs[this.frame+1] === undefined) this.sync.inputs[this.frame+1] = [];
-        this.sync.inputs[this.frame+1].push({ player: this.currentPlayer, input: RIGHT });
+        entity.bufferedVelocity = RIGHT;
+        if (this.sync.inputs[this.frame] === undefined) this.sync.inputs[this.frame] = [];
+        this.sync.inputs[this.frame].push({ player: this.currentPlayer, input: RIGHT });
         this.sendData(entity);
         break;
       // case 49: //1 -> switch to snaccman
@@ -373,7 +373,6 @@ class Game extends React.Component {
     }
     this.frame += 1;
     this.loadInputs(this.frame);
-    if (this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     if (!this.delay) {
       this.display = [];
       if (this.frame % FPS === 0) this.bonus -= 10;
@@ -389,6 +388,7 @@ class Game extends React.Component {
     } else {
       this.delay--;
     }
+    if (this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     if (this.pelletCount === 0) {
       this.win();
     }
@@ -443,7 +443,6 @@ class Game extends React.Component {
       }
       this.updatePositions();
       this.checkCollisions();
-      if(this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
       this.draw();
     } else {
       //display score popup over the ghost you just ate
@@ -451,6 +450,7 @@ class Game extends React.Component {
       this.draw();
       this.drawScorePopup();
     }
+    if(this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     if (this.pelletCount === 0) {
       this.win();
     }
@@ -716,7 +716,7 @@ class Game extends React.Component {
     this.drawBottom();
   }
   drawScorePopup() {
-    if(this.display.length < 2 || this.display[1].length < 2) return;
+    if (this.display.length < 2 || this.display[1].length < 2) return;
     const scoreText = this.display[0];
     let [centerX, centerY] = this.display[1];
     centerX *= PIXEL_SIZE;
