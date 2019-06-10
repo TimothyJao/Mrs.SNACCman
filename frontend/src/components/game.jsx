@@ -283,10 +283,10 @@ class Game extends React.Component {
       // case 80: //P enables super snacc thiccness mode for testing
       //   this.snaccTime();
       //   break;
-      case 81: //Q quits game and prints this for testing
-        console.log(this);
-        clearInterval(this.intervalId);
-        break;
+      // case 81: //Q quits game and prints this for testing
+      //   console.log(this);
+      //   clearInterval(this.intervalId);
+      //   break;
       // case 75: //K kills snaccman for testing
       //   this.killSnaccman();
       //   break;
