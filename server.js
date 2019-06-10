@@ -35,30 +35,39 @@ io.on('connection', function (socket) {
     else throw them an error message and bring them back to welcome page
     */      
     socket.on('joinLobby', (value) => {
+        socket.leave("room-" + roomno)
         if (value === -1 || (value === -2 && io.nsps['/'].adapter.rooms.length === 0)){
             roomno = Math.floor(Math.random() * 9000) + 1000
             socket.join("room-" + roomno);
             socket.emit('lobbyFound', true);
             sendMessage(io, roomno)
-        } else if(value === -2){
-            let rooms = Object.keys(io.sockets.adapter.rooms);
-            for (let i = 0; i < rooms.length; i++){
-                if (rooms[i].slice(0,4) === "room"){
-                    rooms = rooms.slice(i)
-                    break;
-                }
-            }
-            roomno = Math.floor(Math.random() * rooms.length)
-            socket.join(rooms[roomno]);
-            socket.emit('lobbyFound', true);
-            sendMessage(io, roomno)
+        // } else if(value === -2){
+        //     let rooms = Object.keys(io.sockets.adapter.rooms);
+        //     for (let i = 0; i < rooms.length; i++){
+        //         if (rooms[i].slice(0,4) === "room"){
+        //             rooms = rooms.slice(i)
+        //             break;
+        //         }
+        //     }
+        //     roomno = Math.floor(Math.random() * rooms.length)
+        //     socket.join(rooms[roomno]);
+        //     socket.emit('lobbyFound', true);
+        //     sendMessage(io, roomno)
         } else if (io.nsps['/'].adapter.rooms['room-' + value]) {
+            socket.leave("room-" + roomno)
             roomno = value;
-            socket.join("room-" + value);
-            socket.emit('lobbyFound', true);
-            sendMessage(io, roomno)
+            clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
+            let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
+            if (numClients < 5){
+                socket.join("room-" + value);
+                socket.emit('lobbyFound', true);
+                sendMessage(io, roomno)
+            } else{
+                socket.emit('lobbyFound', 'This lobby is full')
+            }
+            
         } else{
-            socket.emit('lobbyFound', false);
+            socket.emit('lobbyFound', 'Lobby Not Found');
         }
     })    
 
@@ -94,6 +103,7 @@ io.on('connection', function (socket) {
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
         let userNum = 0;
         for (let clientId in clients) { 
+            let ghost;
             let clientSocket = io.sockets.connected[clientId];
             if (userNum == 0) {
                 let message = "You are Mrs.Snaccman! You are with " + [numClients-1] + " other player(s)";
@@ -101,8 +111,21 @@ io.on('connection', function (socket) {
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum, roomIdMessage: roomIdMessage });
 
             } else {
-
-                let message = "You are a ghost! You are with " + [numClients-1] + " other player(s)";
+                switch (userNum){
+                    case 1:
+                        ghost = "red";
+                        break;
+                    case 2:
+                        ghost = "yellow";
+                        break;
+                    case 3:
+                        ghost = "green";
+                        break;
+                    case 4:
+                        ghost = "purple";
+                        break;
+                }
+                let message = "You are the " + ghost + " ghost! You are with " + [numClients-1] + " other player(s)";
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum });
             }
             userNum++;
