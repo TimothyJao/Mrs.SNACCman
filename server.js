@@ -41,8 +41,15 @@ io.on('connection', function (socket) {
             socket.emit('lobbyFound', true);
             sendMessage(io, roomno)
         } else if(value === -2){
-            let roomno = Math.floor(Math.random() * io.nsps['/'].adapter.rooms.length === 0)
-            socket.join("room-" + roomno);
+            let rooms = Object.keys(io.sockets.adapter.rooms);
+            for (let i = 0; i < rooms.length; i++){
+                if (rooms[i].slice(0,4) === "room"){
+                    rooms = rooms.slice(i)
+                    break;
+                }
+            }
+            roomno = Math.floor(Math.random() * rooms.length)
+            socket.join(rooms[roomno]);
             socket.emit('lobbyFound', true);
             sendMessage(io, roomno)
         } else if (io.nsps['/'].adapter.rooms['room-' + value]) {
@@ -81,6 +88,7 @@ io.on('connection', function (socket) {
 })
 
     sendMessage = (io, roomno) => {
+        if (!io.sockets.adapter.rooms['room-' + roomno]) return null;
         clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
         console.log('room-' + roomno);
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
