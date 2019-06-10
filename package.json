@@ -9,7 +9,8 @@
     "webpack": "webpack --watch --mode=development",
     "frontend": "npm start --prefix frontend",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend",
-    "postinstall": "webpack"
+    "postinstall": "webpack",
+    "both": "node server.js & npm run frontend"
   },
   "engines": {
     "node": "10.13.0",
