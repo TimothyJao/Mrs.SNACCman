@@ -103,6 +103,7 @@ io.on('connection', function (socket) {
         let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
         let userNum = 0;
         for (let clientId in clients) { 
+            let ghost;
             let clientSocket = io.sockets.connected[clientId];
             if (userNum == 0) {
                 let message = "You are Mrs.Snaccman! You are with " + [numClients-1] + " other player(s)";
@@ -110,8 +111,21 @@ io.on('connection', function (socket) {
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum, roomIdMessage: roomIdMessage });
 
             } else {
-
-                let message = "You are a ghost! You are with " + [numClients-1] + " other player(s)";
+                switch (userNum){
+                    case 1:
+                        ghost = "red";
+                        break;
+                    case 2:
+                        ghost = "yellow";
+                        break;
+                    case 3:
+                        ghost = "green";
+                        break;
+                    case 4:
+                        ghost = "purple";
+                        break;
+                }
+                let message = "You are the " + ghost + " ghost! You are with " + [numClients-1] + " other player(s)";
                 clientSocket.emit('connectToRoom', { message: message, playerNumber: userNum });
             }
             userNum++;

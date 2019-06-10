@@ -31,6 +31,7 @@ class Welcome extends React.Component {
 
   componentDidMount() {
     socket.on('lobbyFound', found => {
+      console.log(found)
       if (found === true) { 
         this.props.history.push("/lobby");
       } else {
