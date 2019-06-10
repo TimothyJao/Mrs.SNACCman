@@ -371,7 +371,7 @@ class Game extends React.Component {
     }
     this.frame += 1;
     this.loadInputs(this.frame);
-    if (this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
+    if (this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     if (!this.delay) {
       this.display = [];
       if (this.frame % FPS === 0) this.bonus -= 10;
@@ -392,21 +392,24 @@ class Game extends React.Component {
     }
   }
   nextFrame(){
-    let min = this.frame;
-    let max = this.frame;
-    let resync = false;
-    while(this.sync.requests.length > 0){
-      resync = true;
-      const req = this.sync.requests.pop();
-      min = Math.min(min, req);
-      max = Math.max(max, req);
-    }
-    if(resync){
-      // console.log("resyncing");
-      this.loadSnapshot(min - 1);
-      this.purgeSnapshots();
-      while(this.frame <= max && !this.finished){
-        this.updateFrameWithoutDraw();
+    if(this.numberOfPlayers > 1){
+      let min = this.frame;
+      let max = this.frame;
+      let resync = false;
+
+      while(this.sync.requests.length > 0){
+        resync = true;
+        const req = this.sync.requests.pop();
+        min = Math.min(min, req);
+        max = Math.max(max, req);
+      }
+      if(resync){
+        // console.log("resyncing");
+        this.loadSnapshot(min - 1);
+        this.purgeSnapshots();
+        while(this.frame <= max && !this.finished){
+          this.updateFrameWithoutDraw();
+        }
       }
     }
     if (this.lives <= 0) {
@@ -425,8 +428,8 @@ class Game extends React.Component {
       return;
     }
     this.frame += 1;
-    this.loadInputs(this.frame);
-    if(this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
+    if(this.numberOfPlayers > 1) this.loadInputs(this.frame);
+    if(this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     //display things if there isn't a delay
     if (!this.delay) {
       this.display = [];
@@ -452,15 +455,16 @@ class Game extends React.Component {
     }
   }
   gameOver() {
+    clearInterval(this.intervalId);
     this.finished = true;
     this.draw();
-    clearInterval(this.intervalId);
   }
   win() {
+    clearInterval(this.intervalId);
+    this.finished = true;
     this.score+=this.bonus;
     this.score+=1000*this.lives;
-    this.finished = true;
-    clearInterval(this.intervalId);
+    this.frame = 0;
     this.intervalId = setInterval(this.drawWinScreen, 1000 / FPS);
   }
 
