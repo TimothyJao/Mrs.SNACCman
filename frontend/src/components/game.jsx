@@ -40,6 +40,7 @@ class Game extends React.Component {
       this.sync.inputs[frame] = [];
     }
     this.sync.inputs[frame].push({player, input});
+    this.sync.latestFrame[data.player] = data.frame;
     this.sync.requests.push(frame);
   } 
 
@@ -47,6 +48,7 @@ class Game extends React.Component {
     if(this.numberOfPlayers === 1) return; //no sockets on single player
     if(this.finished) return; //no sockets if the game is over
     const data = { frame: this.frame, entity, player: this.currentPlayer };
+    this.sync.latestFrame[this.currentPlayer] = this.frame;
     socket.emit('getPlayer', data);
   }
 
