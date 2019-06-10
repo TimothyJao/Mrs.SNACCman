@@ -269,6 +269,7 @@ class Game extends React.Component {
     } else {
       entity = this.ghosts[this.currentPlayer - 1];
     }
+    if(this.numberOfPlayers > 1 && (this.waiting || this.loading)) return;
     switch (e.keyCode) {
         case 13://Enter begins the game
         if(this.numberOfPlayers !== 1) return;
