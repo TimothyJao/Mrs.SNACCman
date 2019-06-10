@@ -22,18 +22,19 @@ class Welcome extends React.Component {
   }
   joinLobby(e) {
     e.preventDefault();
-    socket.emit('joinLobby', this.state.lobbyId)
+    socket.emit('joinLobby', this.state.lobbyId);
   }
   createLobby(e) {
     e.preventDefault();
-    socket.emit('joinLobby', -1)
+    socket.emit('joinLobby', -1);
   }
 
   componentDidMount() {
     socket.on('lobbyFound', found => {
-      if (found) { this.props.history.push("/lobby");}
-      if (!found) {
-        this.setState({error: "Lobby Not Found"});
+      if (found === true) { 
+        this.props.history.push("/lobby");
+      } else {
+        this.setState({error: found});
       }
     });
   }
