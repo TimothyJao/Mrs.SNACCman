@@ -193,13 +193,13 @@ class Game extends React.Component {
     const ghosts = [];
     for(let i = 0; i < this.ghosts.length; i++){
       const ghost = this.ghosts[i];
-      ghosts[i]={
+      ghosts.push({
         pos: ghost.pos.slice(0),
         velocity: ghost.velocity.slice(0),
         bufferedVelocity: ghost.bufferedVelocity.slice(0),
         dead: ghost.dead,
         spawning: ghost.spawning
-      };
+      });
     }
     snapshot.ghosts = ghosts;
     snapshot.pellets = pellets;
