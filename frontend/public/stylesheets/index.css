@@ -19,7 +19,6 @@
   margin: 10px;
   font-weight: bold;
   padding: 10px;
-  background-color: lightgray;
 }
 
 .button-fix {
@@ -112,7 +111,7 @@ a {
 #welcome input[type="number"]:focus{
   border-color: rgb(197,59,148);
 }
-#welcome button{
+button{
   cursor:pointer;
   color: #ffffff;
   font-family: 'Press Start 2P';
@@ -121,18 +120,24 @@ a {
   border: 4px solid #ffffff;
   background-color: #000000;
 }
-#welcome button:hover{
+button:hover{
   color: rgb(197,59,148);
 }
-#welcome button:active{
+button:active{
   outline:none;
   background-color: rgb(197,59,148);
   border-color: rgb(197,59,148);
   color: #ffffff;
 }
-#welcome button:focus{
+button:focus{
   outline:none;
   border-color: rgb(197,59,148);
+}
+#welcome .error{
+  color: rgb(255,0,0);
+  margin-top: 8px;
+  margin-left: 42px;
+  display: inline-block;
 }
 @keyframes left{
   0% {
