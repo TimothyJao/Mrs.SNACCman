@@ -283,10 +283,10 @@ class Game extends React.Component {
       // case 80: //P enables super snacc thiccness mode for testing
       //   this.snaccTime();
       //   break;
-      // case 81: //Q quits game and prints this for testing
-      //   console.log(this);
-      //   clearInterval(this.intervalId);
-      //   break;
+      case 81: //Q quits game and prints this for testing
+        console.log(this);
+        clearInterval(this.intervalId);
+        break;
       // case 75: //K kills snaccman for testing
       //   this.killSnaccman();
       //   break;
@@ -405,10 +405,9 @@ class Game extends React.Component {
         max = Math.max(max, req);
       }
       if(resync){
-        // console.log("resyncing");
         this.loadSnapshot(min - 1);
         this.purgeSnapshots();
-        while(this.frame <= max && !this.finished){
+        while(this.frame < max && !this.finished){
           this.updateFrameWithoutDraw();
         }
       }
@@ -430,7 +429,6 @@ class Game extends React.Component {
     }
     this.frame += 1;
     if(this.numberOfPlayers > 1) this.loadInputs(this.frame);
-    if(this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
     //display things if there isn't a delay
     if (!this.delay) {
       this.display = [];
@@ -444,6 +442,7 @@ class Game extends React.Component {
       }
       this.updatePositions();
       this.checkCollisions();
+      if(this.numberOfPlayers > 1 && this.frame % SNAPSHOT_FREQUENCY === 0) this.saveSnapshot();
       this.draw();
     } else {
       //display score popup over the ghost you just ate
