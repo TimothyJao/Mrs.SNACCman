@@ -35,24 +35,26 @@ io.on('connection', function (socket) {
     else throw them an error message and bring them back to welcome page
     */      
     socket.on('joinLobby', (value) => {
+        socket.leave("room-" + roomno)
         if (value === -1 || (value === -2 && io.nsps['/'].adapter.rooms.length === 0)){
             roomno = Math.floor(Math.random() * 9000) + 1000
             socket.join("room-" + roomno);
             socket.emit('lobbyFound', true);
             sendMessage(io, roomno)
-        } else if(value === -2){
-            let rooms = Object.keys(io.sockets.adapter.rooms);
-            for (let i = 0; i < rooms.length; i++){
-                if (rooms[i].slice(0,4) === "room"){
-                    rooms = rooms.slice(i)
-                    break;
-                }
-            }
-            roomno = Math.floor(Math.random() * rooms.length)
-            socket.join(rooms[roomno]);
-            socket.emit('lobbyFound', true);
-            sendMessage(io, roomno)
+        // } else if(value === -2){
+        //     let rooms = Object.keys(io.sockets.adapter.rooms);
+        //     for (let i = 0; i < rooms.length; i++){
+        //         if (rooms[i].slice(0,4) === "room"){
+        //             rooms = rooms.slice(i)
+        //             break;
+        //         }
+        //     }
+        //     roomno = Math.floor(Math.random() * rooms.length)
+        //     socket.join(rooms[roomno]);
+        //     socket.emit('lobbyFound', true);
+        //     sendMessage(io, roomno)
         } else if (io.nsps['/'].adapter.rooms['room-' + value]) {
+            socket.leave("room-" + roomno)
             roomno = value;
             socket.join("room-" + value);
             socket.emit('lobbyFound', true);
