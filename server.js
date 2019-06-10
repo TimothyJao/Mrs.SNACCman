@@ -56,11 +56,18 @@ io.on('connection', function (socket) {
         } else if (io.nsps['/'].adapter.rooms['room-' + value]) {
             socket.leave("room-" + roomno)
             roomno = value;
-            socket.join("room-" + value);
-            socket.emit('lobbyFound', true);
-            sendMessage(io, roomno)
+            clients = io.sockets.adapter.rooms['room-' + roomno].sockets;
+            let numClients = (typeof clients !== "undefined") ? Object.keys(clients).length : 0
+            if (numClients < 5){
+                socket.join("room-" + value);
+                socket.emit('lobbyFound', true);
+                sendMessage(io, roomno)
+            } else{
+                socket.emit('lobbyFound', 'This lobby is full')
+            }
+            
         } else{
-            socket.emit('lobbyFound', false);
+            socket.emit('lobbyFound', 'Lobby Not Found');
         }
     })    
 
