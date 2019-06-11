@@ -68,6 +68,7 @@ class Game extends React.Component {
     this.startPosition = [12.5, 22];
     this.respawnLocation = [12, 10];
     this.ghostRegion = [[9, 11], [16, 15]];
+    this.keypresses = [];
 
     this.currentPlayer = this.props.currentPlayer || 0; //0 = pacman, 1-4 are ghosts
     if(this.props.location && this.props.location.state && this.props.location.state.playerNumber) this.currentPlayer = this.props.location.state.playerNumber;
@@ -265,6 +266,15 @@ class Game extends React.Component {
     canvas.style.cssText = `width: ${WIDTH * scale}px; height: ${HEIGHT * scale}px;`;
   }
   handleInput(e) {
+    if(!this.finished){
+      this.keypresses.push(e);
+    }else{
+      if(e.keyCode === 13){
+        this.props.history.push("/");
+      }
+    }
+  }
+  handleKeyPress(e){
     let entity;
     if (this.currentPlayer === 0) {
       entity = this.snaccman;
@@ -396,6 +406,11 @@ class Game extends React.Component {
     }
   }
   nextFrame(){
+    if(this.keypresses.length > 0){
+      let keypress = this.keypresses.shift();
+      while(this.keypresses.length > 0) keypress = this.keypresses.shift();
+      this.handleKeyPress(keypress);
+    }
     if(this.numberOfPlayers > 1){
       let min = this.frame;
       let max = this.frame;
@@ -461,6 +476,7 @@ class Game extends React.Component {
     clearInterval(this.intervalId);
     this.finished = true;
     this.draw();
+    this.drawRedirect();
   }
   win() {
     clearInterval(this.intervalId);
@@ -814,6 +830,21 @@ class Game extends React.Component {
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.closePath();
   }
+  drawRedirect() {
+    const [x, y] = [PADDING / 2, this.game.GameHeight() / 2 - PADDING / 2];
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = TEXT_COLOR;
+    this.ctx.fillRect(x, y, this.game.GameWidth() - (PADDING), 50);
+    this.ctx.strokeRect(x, y, this.game.GameWidth() - (PADDING), 50);
+    this.ctx.fillStyle = TEXT_COLOR;
+    this.ctx.strokeStyle = TEXT_OUTLINE_COLOR;
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Press ENTER to return to lobby", this.game.GameWidth() / 2, y + 37);
+    this.ctx.strokeText("Press ENTER to return to lobby", this.game.GameWidth() / 2, y + 37);
+    this.ctx.textAlign = "left";
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.closePath();
+  }
 
   clearPadding() {
     const gameWidth = this.game.GameWidth();
@@ -991,6 +1022,7 @@ class Game extends React.Component {
     this.frame++;
     if (this.frame > 1.25 * FPS) {
       clearInterval(this.intervalId);
+      this.drawRedirect();
       return;
     }
     //clear canvas
