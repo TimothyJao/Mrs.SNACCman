@@ -22,8 +22,11 @@ class Lobby extends React.Component {
       });
 
       socket.on("sendPlayers", players => {
-        this.setState({ players: Object.keys(players) });
-        this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
+        this.setState({ players: Object.keys(players) },
+        ()=>{
+            this.props.history.push({pathname: "/Game", state: {players: this.state.players, playerNumber: this.state.playerNumber}});
+        }
+        );
       });
     }
 
