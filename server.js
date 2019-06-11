@@ -36,6 +36,7 @@ io.on('connection', function (socket) {
     */      
     socket.on('joinLobby', (value) => {
         socket.leave("room-" + roomno)
+        socket.leave("game-" + roomno)
         if (value === -1 || (value === -2 && io.nsps['/'].adapter.rooms.length === 0)){
             roomno = Math.floor(Math.random() * 9000) + 1000
             socket.join("room-" + roomno);
