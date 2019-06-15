@@ -17,11 +17,11 @@ In Mrs. Snaccman, we added multiplayer functionalities to make the game more eng
     * Unless Snaccman is powered up, touching Snaccman will kill her
     
 ### Wireframe
-INSERT PICTURE OF WELCOME SCREEN HERE
+![Welcome](./frontend/public/images/welcome.png)
 
 The app will initially consist of a single page that will contain a create and join lobby. 
 
-INSERT PICTURE OF LOBBY HERE
+![Welcome](./frontend/public/images/lobby.png)
 
 Upon creating or joining a lobby, the user will be automatically assigned as a ghost and can move over as Snaccman unless there is already someone who claimed it. A start button will be at the bottom that the creator of the room can click to start the game.
 
