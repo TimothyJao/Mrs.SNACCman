@@ -51,3 +51,54 @@ In addition to the webpack entry file, we will have four main folders/files:
 Classes: This folder holds all the classes for the various game objects and the grid for the game.
 
 Game.js: Handles all the game logic and rendering
+
+#### Code
+
+For the AI, we keep track of all the neighboring cells in the grid, and perform a BFS between Snaccman's position and the ghost give them the shortest route.
+
+```JS
+//Set up an array of neighboring cells for each cell in the grid
+setupNeighbors(){
+    this.grid.forEach((row, x)=>{
+      row.forEach((cell, y)=>{
+        cell.neighbors = [];
+        if(cell.canMoveUp()){
+          cell.neighbors.push(this.getCellAtPos([x, y-1]));
+        }
+        if(cell.canMoveDown()){
+          cell.neighbors.push(this.getCellAtPos([x, y+1]));
+        }
+        if(cell.canMoveLeft()){
+          cell.neighbors.push(this.getCellAtPos([x-1, y]));
+        }
+        if(cell.canMoveRight()){
+          cell.neighbors.push(this.getCellAtPos([x+1, y]));
+        }
+      });
+    });
+
+
+//Find the shortest path between two points, to find snaccman, or to allow a ghost to return home and respawn when eaten
+
+export const shortestPath = (source, target) => {
+  const queue = [];
+  const visited = [];
+  const path = {};
+  queue.push(source);
+  while (queue.length > 0) {
+    const currentPosition = queue.shift();
+    visited.push(currentPosition);
+    if (currentPosition === target) {
+      return path;
+    }
+    const neighbors = currentPosition.neighbors;
+    for (let i = 0; i < neighbors.length; i++) {
+      if (visited.includes(neighbors[i]) === false) {
+        queue.push(neighbors[i]);
+        path[neighbors[i].toString()] = currentPosition;
+      }
+    }
+  }
+};
+
+```
