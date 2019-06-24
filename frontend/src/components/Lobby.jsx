@@ -18,7 +18,7 @@ class Lobby extends React.Component {
 
     componentDidMount() {
       socket.on('connectToRoom', (data) => {
-          this.setState({ message: data.message, playerNumber: data.playerNumber, roomIdMessage: data.roomIdMessage })
+          this.setState({ message: data.message, playerNumber: data.playerNumber, roomIdMessage: data.roomIdMessage });
       });
 
       socket.on("sendPlayers", players => {
@@ -31,22 +31,20 @@ class Lobby extends React.Component {
     }
 
     playGame() {
-      socket.emit('getPrompt', "")
+      socket.emit('getPrompt', "");
     }
 
     render() {
-        let startButton = this.state.playerNumber === 0 ? <button className="start-btn" onClick={this.playGame}> Start Game </button>: " ";
+        let startButton = this.state.playerNumber === 0 ? 
+            <button onClick={this.playGame}>Start Game</button> : "";
         return (
-            <div>
-                <h1 className="welcome" style={{color:'white'}}> Mrs. Snaccman </h1>
-                <div className="lobbyMessages">
-                    <h1 className="message"> {this.state.message} </h1>
-                    <h1 className="message"> {this.state.roomIdMessage} </h1>
-                </div>
-                    
-                <div className="button-fix">
-                    {startButton}
-                </div>
+            <div id="lobby">
+                <h1>Mrs. Snaccman</h1>
+                <ul>
+                    <li className="message">{this.state.message}</li>
+                    <li className="message">{this.state.roomIdMessage}</li>
+                </ul>
+                {startButton}
             </div>
         );
     }

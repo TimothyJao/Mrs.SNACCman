@@ -5,67 +5,42 @@
   background-color: black;
   height: 100%;
   font-family: "Press Start 2P";
+  color: white;
 }
-
-.welcome {
-  text-align: center;
-  margin-bottom: 10%;
-}
-
-.start-btn {
-  text-align: center;
-  display: inline-block;
-  align-self: center;
-  margin: 10px;
-  font-weight: bold;
-  padding: 10px;
-}
-
-.button-fix {
-  display: flex;
-  justify-content: center;
-}
-
 body {
   background-color: black;
   padding: 0;
   margin: 0;
 }
-
-h2 > img {
-  display: none;
-}
-
-a {
-  text-decoration: none;
-  color: white;
-}
-
-.lobbyMessages{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.message{
-    color: white;
-}
-
-#welcome{
-  color: white;
-}
-#welcome h1{
-
-}
-#welcome ul{
+ul{
   margin: 0;
   padding: 0;
   list-style: none;
 }
-#welcome li{
-  padding: 0;
+li{
   margin: 0;
-  padding: 10px;
+  padding: 0;
+}
+#lobby{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#lobby ul{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+.message{
+  font-size: 24px;
+  text-align: center;
+  margin: 10px;
+}
+#welcome li{
   cursor: pointer;
 }
 #welcome li img{
@@ -91,7 +66,7 @@ a {
 #welcome ul li.not-pointer{
   cursor: default;
 }
-#welcome input[type="number"]{
+input[type="number"]{
   appearance: textfield;
   -webkit-appearance: textfield;
   -moz-appearance: textfield;
@@ -104,11 +79,11 @@ a {
   border: 4px solid #ffffff;
   background-color: #000000;
 }
-#welcome input[type="number"]::-webkit-outer-spin-button, 
-#welcome input[type="number"]::-webkit-inner-spin-button { 
+input[type="number"]::-webkit-outer-spin-button, 
+input[type="number"]::-webkit-inner-spin-button { 
   margin-left: 20px;
 } 
-#welcome input[type="number"]:focus{
+input[type="number"]:focus{
   border-color: rgb(197,59,148);
 }
 button{
