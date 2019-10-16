@@ -172,6 +172,8 @@ export const distance = (p1, p2)=>{
 
 
 /* shortestPath - return shortest path coordinates from source to target cell */
+/* I chose this code since it was the first time I used a theoretical algorithm 
+in an actual project. Here, I use BFS to find the ghost's optimal path to the player.*/
 export const shortestPath = (source, target) => {
   const queue = [];
   const visited = [];
