@@ -38,7 +38,7 @@
     "express": "^4.16.4",
     "frontend": "file:frontend",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.5.7",
+    "mongoose": "^5.7.5",
     "nodeman": "^1.1.2",
     "nodemon": "^1.19.1",
     "passport": "^0.4.0",
