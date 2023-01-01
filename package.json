@@ -31,10 +31,10 @@
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "axios": "^0.18.0",
-    "babel-loader": "^8.0.5",
+    "babel-loader": "^8.3.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "config": "^3.1.0",
+    "config": "^3.3.8",
     "express": "^4.16.4",
     "frontend": "file:frontend",
     "jsonwebtoken": "^8.5.1",
@@ -53,9 +53,9 @@
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "validator": "^10.11.0",
-    "webpack": "^4.29.6"
+    "webpack": "^5.75.0"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^5.0.1"
   }
 }
